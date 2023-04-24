@@ -1,11 +1,12 @@
-require('dotenv').config();
+import { CLIENT_SECRET } from "./config.js";
+
 async function fetchOAuth() {
     let response = await fetch("https://id.twitch.tv/oauth2/token", {
         method: "POST",
         headers: {
             "Content-Type": "application/json"
         },
-        body: JSON.stringify({"client_id": "pa669by8xti1oag6giphneaeykt6ln", "client_secret": process.env.CLIENT_SECRET, "grant_type": "client_credentials"})
+        body: JSON.stringify({"client_id": "pa669by8xti1oag6giphneaeykt6ln", "client_secret": CLIENT_SECRET, "grant_type": "client_credentials"})
     });
     let data = await response.json();
     return data.access_token;
