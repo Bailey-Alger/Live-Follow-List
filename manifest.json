@@ -1,0 +1,35 @@
+{
+    "manifest_version": 2,
+    "name": "Your Extension Name",
+    "version": "1.0",
+    "description": "Your extension description",
+  
+    "permissions": [
+      "https://api.twitch.tv/*",
+      "https://id.twitch.tv/*",
+      "activeTab"
+    ],
+  
+    "background": {
+      "scripts": [
+        "background.js"
+      ],
+      "persistent": false
+    },
+  
+    "content_scripts": [
+      {
+        "matches": [
+          "<all_urls>"
+        ],
+        "js": [
+          "content.js"
+        ]
+      }
+    ],
+  
+    "web_accessible_resources": [
+      "content.js"
+    ]
+  }
+  
