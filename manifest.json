@@ -1,22 +1,21 @@
 {
-    "manifest_version": 2,
-    "name": "Your Extension Name",
+    "manifest_version": 3,
+    "name": "Live Follow List",
     "version": "1.0",
-    "description": "Your extension description",
-  
+    "description": "Displays your live follow list for twitch and youtube",
+    "host_permissions": [
+        "https://api.twitch.tv/*",
+        "https://id.twitch.tv/*"
+    ],
     "permissions": [
-      "https://api.twitch.tv/*",
-      "https://id.twitch.tv/*",
       "activeTab"
     ],
-  
-    "background": {
-      "scripts": [
-        "background.js"
-      ],
-      "persistent": false
+    "action": {
+        "default_popup": "popup.html"
     },
-  
+    "service_worker": {
+        "script": "background.js"
+    },
     "content_scripts": [
       {
         "matches": [
