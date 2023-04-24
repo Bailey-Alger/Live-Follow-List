@@ -12,17 +12,6 @@ async function fetchOAuth() {
     return data.access_token;
 };
 
-const tokenPromise = fetchOAuth();
-const userIDPromise = fetchUserID();
-
-async function main() {
-    const token = await tokenPromise;
-    const userID = await userIDPromise;
-    console.log(token);
-    console.log(userID);
-};
-main();
-
 async function fetchUserID() {
     const authToken = await tokenPromise;
     let response = await fetch("https://api.twitch.tv/helix/users?login=tiltzer", {
@@ -35,6 +24,16 @@ async function fetchUserID() {
     return data.id;
 };
 
+const tokenPromise = fetchOAuth();
+const userIDPromise = fetchUserID();
+
+async function main() {
+    const token = await tokenPromise;
+    const userID = await userIDPromise;
+    console.log(token);
+    console.log(userID);
+};
+
 // let followList = fetch(`https://api.twitch.tv/helix/users/follows?from_id=${userID}&first=100`).then((response) => response.json()).then((json) => console.log(json))
 
 chrome.runtime.onMessage.addListener(async function(message, sender, sendResponse) {
@@ -44,4 +43,6 @@ chrome.runtime.onMessage.addListener(async function(message, sender, sendRespons
         sendResponse({ token, userID });
     }
 });
-  
+
+
+main();
