@@ -8,7 +8,6 @@
         "https://id.twitch.tv/*"
     ],
     "permissions": [
-        "activeTab",
         "storage"
     ],
     "action": {
@@ -20,7 +19,7 @@
     },
     "web_accessible_resources": [
         {
-            "resources": ["style.css", "content.js"],
+            "resources": ["style.css"],
             "matches": ["https://*.twitch.tv/*"]
         }
     ]
