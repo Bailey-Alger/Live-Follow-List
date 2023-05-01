@@ -2,10 +2,6 @@ import { CLIENT_SECRET } from "./config.js";
 
 const tokenPromise = fetchOAuth();
 
-chrome.storage.local.set({ userID: userID }, function() {
-    console.log('userID has been saved to local storage');
-  });
-
 async function fetchOAuth() {
     let response = await fetch("https://id.twitch.tv/oauth2/token", {
         method: "POST",
