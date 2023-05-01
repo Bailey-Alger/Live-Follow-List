@@ -57,16 +57,6 @@ function getStoredUserID() {
     });
   }
 
-// const userIDPromise = fetchUserID();
-
-// async function main() {
-//     const token = await tokenPromise;
-//     const userID = await userIDPromise;
-//     console.log(token);
-//     console.log(userID);
-// };
-
-// let followList = fetch(`https://api.twitch.tv/helix/users/follows?from_id=${userID}&first=100`).then((response) => response.json()).then((json) => console.log(json))
 
 chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
 (async function () {
@@ -83,5 +73,3 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
 })();
         return true; // indicates that we will send the response asynchronously
 });
-
-// main();
