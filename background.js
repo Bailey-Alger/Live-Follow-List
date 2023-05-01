@@ -38,21 +38,20 @@ async function fetchUserID() {
 
 // let followList = fetch(`https://api.twitch.tv/helix/users/follows?from_id=${userID}&first=100`).then((response) => response.json()).then((json) => console.log(json))
 
-chrome.runtime.onMessage.addListener(async function(message, sender, sendResponse) {
-    console.log("message recieved: " + message);
-    if (message === "fetchData") {
+chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
+(async function () {
+    console.log("message recieved: " + request);
+    if (request === "fetchData") {
         const token = await tokenPromise;
         const userID = await fetchUserID();
-        console.log(token);
-        console.log(userID);
         sendResponse({
             success: true,
             token: token,
             userID: userID
         });
-        return true; // indicates that we will send the response asynchronously
     }
+})();
+        return true; // indicates that we will send the response asynchronously
 });
-// TODO: response port is timing out.
 
 // main();
