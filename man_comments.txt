@@ -4,3 +4,5 @@
           "<all_urls>"
         ],
 change all_urls to the only the URLs the extension will run.
+
+naming conventions more uniform.
