@@ -70,11 +70,29 @@ async function fetchFollowList() {
     let data = await response.json();
     console.log(data);
     for (var i = 0; i < data.data.length; i++){
-        followList.push(data.data[i].to_name)
+        fetchIsLive(data.data[i].to_name);
+        followList.push(data.data[i].to_name);
     };
-    console.log(followList);
+    console.log("follow list created");
     return followList;
 };
+
+async function fetchIsLive(channel) {
+    const authToken = await tokenPromise;
+    let response = await fetch(encodeURI(`https://api.twitch.tv/helix/search/channels?query=${channel}&live_only=true`), {
+        headers: {
+            "Authorization": `Bearer ${authToken}`,
+            "Client-Id": "pa669by8xti1oag6giphneaeykt6ln" 
+        }
+    });
+    let data = await response.json();
+    if (data.data.length > 0 && data.data[0].is_live) {
+        console.log(data.data[0].is_live);
+        return data.data[0].is_live;
+    }
+    else { return false; }
+};
+
 
 chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
 (async function () {
