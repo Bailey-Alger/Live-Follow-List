@@ -70,27 +70,33 @@ async function fetchFollowList() {
     let data = await response.json();
     console.log(data);
     for (var i = 0; i < data.data.length; i++){
-        fetchIsLive(data.data[i].to_name);
-        followList.push(data.data[i].to_name);
+        let isLive = await fetchIsLive(data.data[i].to_name);
+        if (isLive) {
+            console.log(data.data[i].to_name);
+            // console.log(isLive);
+            followList.push(data.data[i].to_name);
+        };
     };
     console.log("follow list created");
     return followList;
 };
 
 async function fetchIsLive(channel) {
+    let isLive = false;
     const authToken = await tokenPromise;
-    let response = await fetch(encodeURI(`https://api.twitch.tv/helix/search/channels?query=${channel}&live_only=true`), {
+    let response = await fetch(encodeURI(`https://api.twitch.tv/helix/search/channels?query=${channel}&first=1`), {
         headers: {
             "Authorization": `Bearer ${authToken}`,
             "Client-Id": "pa669by8xti1oag6giphneaeykt6ln" 
         }
     });
     let data = await response.json();
-    if (data.data.length > 0 && data.data[0].is_live) {
-        console.log(data.data[0].is_live);
-        return data.data[0].is_live;
-    }
-    else { return false; }
+    // console.log(data);
+    if ((data.data.length > 0) && data.data[0].is_live) {
+        // console.log(data.data[0].is_live);
+        isLive = true;
+    };
+    return isLive;
 };
 
 
