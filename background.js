@@ -2,6 +2,30 @@ import { CLIENT_SECRET } from "./config.js";
 
 const tokenPromise = fetchOAuth();
 const userID = fetchUserID();
+const clientId = 'pa669by8xti1oag6giphneaeykt6ln';
+const redirectUri = chrome.identity.getRedirectURL();
+
+chrome.identity.launchWebAuthFlow({
+    'url': `https://id.twitch.tv/oauth2/authorize?client_id=${clientId}&redirect_uri=${redirectUri}&response_type=token&scope=user:read:follows`,
+    'interactive': true
+}, function(redirectUrl) {
+    // Handle the redirect URL containing the authorization code
+    if (redirectUrl && redirectUrl.match(/access_token=([^&]+)/)) {
+        const userAccessToken = redirectUrl.match(/access_token=([^&]+)/)[1];
+    } else {
+        console.error('redirectUrl error');
+        console.log(redirectUrl);
+    }
+    chrome.storage.local.set({userAccessToken: userAccessToken}, function() {
+        console.log('User access token is stored');
+    });
+});
+
+function getStoredUserAccessToken() {
+    chrome.storage.local.get(['userAccessToken'], function(result) {
+        console.log('User access token is retrieved', result.userAccessToken);
+      });
+};
 
 async function fetchOAuth() {
     let response = await fetch("https://id.twitch.tv/oauth2/token", {
@@ -113,3 +137,4 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
 })();
         return true; // indicates that we will send the response asynchronously
 });
+
