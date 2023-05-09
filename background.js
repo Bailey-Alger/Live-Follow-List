@@ -149,7 +149,7 @@ async function fetchIsLive(channel) {
     const authToken = await tokenPromise;
     let response = await fetch(encodeURI(`https://api.twitch.tv/helix/search/channels?query=${channel}&first=1`), {
         headers: {
-            "Authorization": `Bearer ${await getUserAccessToken()}`,
+            "Authorization": `Bearer ${await authToken}`,
             "Client-Id": "pa669by8xti1oag6giphneaeykt6ln" 
         }
     });
@@ -163,17 +163,17 @@ async function fetchIsLive(channel) {
 };
 
 
-chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
-(async function () {
-    console.log("message recieved: " + request);
-    if (request === "fetchData") {
-        const respFollowList = await fetchIsLive();
-        sendResponse({
-            success: true,
-            followList: respFollowList
-        });
-    }
-})();
-        return true; // indicates that we will send the response asynchronously
-});
+// chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
+// (async function () {
+//     console.log("message recieved: " + request);
+//     if (request === "fetchData") {
+//         const respFollowList = await fetchFollowList();
+//         sendResponse({
+//             success: true,
+//             followList: respFollowList
+//         });
+//     }
+// })();
+//         return true; // indicates that we will send the response asynchronously
+// });
 
