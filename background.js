@@ -3,27 +3,67 @@ import { CLIENT_SECRET } from "./config.js";
 const tokenPromise = fetchOAuth();
 const userID = fetchUserID();
 const clientId = 'pa669by8xti1oag6giphneaeykt6ln';
-const redirectUri = chrome.identity.getRedirectURL();
+const redirectUri =  "http://localhost" // chrome.identity.getRedirectURL();
+const authUrl = `https://id.twitch.tv/oauth2/authorize?client_id=${clientId}&redirect_uri=${redirectUri}&response_type=token&scope=user%3Aread%3Afollows`;
+console.log(authUrl);
 
-chrome.identity.launchWebAuthFlow({
-    'url': encodeURI(`https://id.twitch.tv/oauth2/authorize?client_id=${clientId}&redirect_uri=${redirectUri}&response_type=token&scope=user:read:follows`),
-    'interactive': true
-}, function(redirectUrl) {
-    if (redirectUrl && redirectUrl.match(/access_token=([^&]+)/)) {
-        const userAccessToken = redirectUrl.match(/access_token=([^&]+)/)[1];
-    } else {
-        console.error('redirectUrl error');
-        console.log(redirectUrl);
-    }
-    chrome.storage.local.set({userAccessToken: userAccessToken}, function() {
-        console.log('User access token is stored');
+async function fetchIsValid(token) {
+    let response = await fetch("https://api.twitch.tv/helix/users?login=tiltzer", {
+        headers: {
+            "Authorization": `OAuth ${token}`
+        }
     });
+    let data = await response.json();
+    console.log(data.status);
+    if (data.status == 200) {
+        return true;
+    };
+    return false;
+};
+
+
+async function getUserAccessToken() {
+    const token = await getStoredUserAccessToken();
+    if (token == {} || !true/*await fetchIsValid(token)*/) {
+        chrome.tabs.create({ url: authUrl });
+    }
+    console.log(await fetchIsValid(await getStoredUserAccessToken()));
+    return await getStoredUserAccessToken();
+};
+
+chrome.tabs.onUpdated.addListener(function(tabId, changeInfo, tab) {
+    if (changeInfo.url && changeInfo.url.startsWith(redirectUri)) {
+        const userAccessToken = changeInfo.url.match(/access_token=([^&]+)/)[1];
+        chrome.storage.local.set({ userAccessToken: userAccessToken });
+        chrome.tabs.remove(tabId);
+    } else {
+        console.log(changeInfo);
+    }
 });
 
+// chrome.identity.launchWebAuthFlow({
+//     'url': encodeURI(`https://id.twitch.tv/oauth2/authorize?client_id=${clientId}&redirect_uri=${redirectUri}&response_type=token&scope=user:read:follows`),
+//     'interactive': true
+// }, function(redirectUrl) {
+//     if (redirectUrl && redirectUrl.match(/access_token=([^&]+)/)) {
+//         const userAccessToken = redirectUrl.match(/access_token=([^&]+)/)[1];
+//     } else {
+//         console.error('redirectUrl error');
+//         console.log(redirectUrl);
+//     }
+//     chrome.storage.local.set({userAccessToken: userAccessToken}, function() {
+//         console.log('User access token is stored');
+//     });
+// });
+
 function getStoredUserAccessToken() {
-    chrome.storage.local.get(['userAccessToken'], function(result) {
-        console.log('User access token is retrieved', result.userAccessToken);
-      });
+    return new Promise((resolve) => {
+        chrome.storage.local.get(['userAccessToken'], function(result) {
+            console.log('User access token is retrieved', result.userAccessToken);
+            const userAccessToken = result.userAccessToken;
+            resolve(userAccessToken);
+        });
+    });
 };
 
 async function fetchOAuth() {
@@ -109,7 +149,7 @@ async function fetchIsLive(channel) {
     const authToken = await tokenPromise;
     let response = await fetch(encodeURI(`https://api.twitch.tv/helix/search/channels?query=${channel}&first=1`), {
         headers: {
-            "Authorization": `Bearer ${authToken}`,
+            "Authorization": `Bearer ${await getUserAccessToken()}`,
             "Client-Id": "pa669by8xti1oag6giphneaeykt6ln" 
         }
     });
@@ -127,7 +167,7 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
 (async function () {
     console.log("message recieved: " + request);
     if (request === "fetchData") {
-        const respFollowList = await fetchFollowList();
+        const respFollowList = await fetchIsLive();
         sendResponse({
             success: true,
             followList: respFollowList
