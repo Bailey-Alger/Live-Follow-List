@@ -5,11 +5,13 @@
     "description": "Displays your live follow list for twitch and youtube",
     "host_permissions": [
         "https://api.twitch.tv/*",
-        "https://id.twitch.tv/*"
+        "https://id.twitch.tv/*",
+        "http://localhost/*"
     ],
     "permissions": [
         "storage",
-        "identity"
+        "identity",
+        "tabs"
     ],
     "action": {
         "default_popup": "popup.html"
