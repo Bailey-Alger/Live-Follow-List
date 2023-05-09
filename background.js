@@ -6,10 +6,9 @@ const clientId = 'pa669by8xti1oag6giphneaeykt6ln';
 const redirectUri = chrome.identity.getRedirectURL();
 
 chrome.identity.launchWebAuthFlow({
-    'url': `https://id.twitch.tv/oauth2/authorize?client_id=${clientId}&redirect_uri=${redirectUri}&response_type=token&scope=user:read:follows`,
+    'url': encodeURI(`https://id.twitch.tv/oauth2/authorize?client_id=${clientId}&redirect_uri=${redirectUri}&response_type=token&scope=user:read:follows`),
     'interactive': true
 }, function(redirectUrl) {
-    // Handle the redirect URL containing the authorization code
     if (redirectUrl && redirectUrl.match(/access_token=([^&]+)/)) {
         const userAccessToken = redirectUrl.match(/access_token=([^&]+)/)[1];
     } else {
