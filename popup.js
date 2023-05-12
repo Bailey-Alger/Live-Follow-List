@@ -3,7 +3,7 @@ chrome.runtime.sendMessage("fetchData", async function(response) {
         console.log("response successful");
         console.log(response.followList);
 
-        const followList = response.followList;
+        const followList = sortCaseInsensitive(response.followList);
         let twitchList = document.getElementById("twitchList");
         console.log(followList);
         followList.forEach((item) => {
@@ -17,3 +17,6 @@ chrome.runtime.sendMessage("fetchData", async function(response) {
     }
 });
 
+function sortCaseInsensitive(arr) {
+    return arr.sort((a, b) => a.localeCompare(b, undefined, { sensitivity: 'base' }));
+  }
