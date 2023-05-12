@@ -3,68 +3,6 @@ import { CLIENT_SECRET } from "./config.js";
 const tokenPromise = fetchOAuth();
 const userID = fetchUserID();
 const clientId = 'pa669by8xti1oag6giphneaeykt6ln';
-const redirectUri =  "http://localhost" // chrome.identity.getRedirectURL();
-const authUrl = `https://id.twitch.tv/oauth2/authorize?client_id=${clientId}&redirect_uri=${redirectUri}&response_type=token&scope=user%3Aread%3Afollows`;
-console.log(authUrl);
-
-async function fetchIsValid(token) {
-    let response = await fetch("https://api.twitch.tv/helix/users?login=tiltzer", {
-        headers: {
-            "Authorization": `OAuth ${token}`
-        }
-    });
-    let data = await response.json();
-    console.log(data.status);
-    if (data.status == 200) {
-        return true;
-    };
-    return false;
-};
-
-
-async function getUserAccessToken() {
-    const token = await getStoredUserAccessToken();
-    if (token == {} || !true/*await fetchIsValid(token)*/) {
-        chrome.tabs.create({ url: authUrl });
-    }
-    console.log(await fetchIsValid(await getStoredUserAccessToken()));
-    return await getStoredUserAccessToken();
-};
-
-chrome.tabs.onUpdated.addListener(function(tabId, changeInfo, tab) {
-    if (changeInfo.url && changeInfo.url.startsWith(redirectUri)) {
-        const userAccessToken = changeInfo.url.match(/access_token=([^&]+)/)[1];
-        chrome.storage.local.set({ userAccessToken: userAccessToken });
-        chrome.tabs.remove(tabId);
-    } else {
-        console.log(changeInfo);
-    }
-});
-
-// chrome.identity.launchWebAuthFlow({
-//     'url': encodeURI(`https://id.twitch.tv/oauth2/authorize?client_id=${clientId}&redirect_uri=${redirectUri}&response_type=token&scope=user:read:follows`),
-//     'interactive': true
-// }, function(redirectUrl) {
-//     if (redirectUrl && redirectUrl.match(/access_token=([^&]+)/)) {
-//         const userAccessToken = redirectUrl.match(/access_token=([^&]+)/)[1];
-//     } else {
-//         console.error('redirectUrl error');
-//         console.log(redirectUrl);
-//     }
-//     chrome.storage.local.set({userAccessToken: userAccessToken}, function() {
-//         console.log('User access token is stored');
-//     });
-// });
-
-function getStoredUserAccessToken() {
-    return new Promise((resolve) => {
-        chrome.storage.local.get(['userAccessToken'], function(result) {
-            console.log('User access token is retrieved', result.userAccessToken);
-            const userAccessToken = result.userAccessToken;
-            resolve(userAccessToken);
-        });
-    });
-};
 
 async function fetchOAuth() {
     let response = await fetch("https://id.twitch.tv/oauth2/token", {
@@ -132,14 +70,15 @@ async function fetchFollowList() {
     });
     let data = await response.json();
     console.log(data);
-    for (var i = 0; i < data.data.length; i++){
-        let isLive = await fetchIsLive(data.data[i].to_name);
+    let promises = data.data.map(async (item) => {
+        let isLive = await fetchIsLive(item.to_name);
         if (isLive) {
-            console.log(data.data[i].to_name);
+            console.log(item.to_name);
             // console.log(isLive);
-            followList.push(data.data[i].to_name);
+            followList.push(item.to_name);
         };
-    };
+    })
+    await Promise.all(promises);
     console.log("follow list created");
     return followList;
 };
@@ -154,26 +93,24 @@ async function fetchIsLive(channel) {
         }
     });
     let data = await response.json();
-    // console.log(data);
     if ((data.data.length > 0) && data.data[0].is_live) {
-        // console.log(data.data[0].is_live);
         isLive = true;
     };
     return isLive;
 };
 
 
-// chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
-// (async function () {
-//     console.log("message recieved: " + request);
-//     if (request === "fetchData") {
-//         const respFollowList = await fetchFollowList();
-//         sendResponse({
-//             success: true,
-//             followList: respFollowList
-//         });
-//     }
-// })();
-//         return true; // indicates that we will send the response asynchronously
-// });
+chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
+(async function () {
+    console.log("message recieved: " + request);
+    if (request === "fetchData") {
+        const respFollowList = await fetchFollowList();
+        sendResponse({
+            success: true,
+            followList: respFollowList
+        });
+    }
+})();
+        return true; // indicates that we will send the response asynchronously
+});
 
