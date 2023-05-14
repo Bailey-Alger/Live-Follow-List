@@ -1,4 +1,4 @@
-chrome.runtime.sendMessage("fetchData", async function(response) {
+chrome.runtime.sendMessage("fetchTwitchData", async function(response) {
     if (response && response.followList) {
         console.log("response successful");
         console.log(response.followList);
