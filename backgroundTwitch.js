@@ -7,6 +7,12 @@ const clientId = 'pa669by8xti1oag6giphneaeykt6ln';
 
 // FETCHES
 
+async function fetchCombinedList() {
+    const followList = await fetchFollowList();
+    const favorites = await getFavorites() || [];
+    return [...favorites, ...followList.filter(item => !favorites.includes(item))];
+};
+
 async function fetchFollowList() {
     const iD = await userID;
     const authToken = await tokenPromise;
@@ -23,7 +29,6 @@ async function fetchFollowList() {
         let isLive = await fetchIsLive(item.to_name);
         if (isLive) {
             console.log(item.to_name);
-            // console.log(isLive);
             followList.push(item.to_name);
         };
     })
@@ -88,6 +93,26 @@ async function fetchUserID() {
 
 // GET/SET CHROME STORAGE
 
+async function getFavorites() {
+    const favorites = await new Promise(resolve => chrome.storage.local.get(['favorites'], resolve));
+    return favorites ? favorites.favorites : [];
+};
+
+async function addFavorite(favorite) {
+    let favorites = await getFavorites();
+    favorites.push(favorite);
+    await chrome.storage.local.set({favorites});
+};
+
+async function removeFavorite(favorite) {
+    let favorites = await getFavorites();
+    const index = favorites.indexOf(favorite);
+    if (index !== -1) {
+        favorites.splice(index, 1);
+        await chrome.storage.local.set({favorites});
+    }
+};
+
 function getStoredUserID() {
     return new Promise((resolve) => {
         chrome.storage.local.get(["userID"], (result) => {
@@ -112,11 +137,17 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
 (async function () {
     console.log("message recieved: " + request);
     if (request === "fetchTwitchData") {
-        const respFollowList = await fetchFollowList();
+        const combinedList = await fetchCombinedList();
         sendResponse({
             success: true,
-            followList: respFollowList
+            followList: combinedList
         });
+    } else if (request.type === "addFavoriteTwitch") {
+        await addFavorite(request.favorite);
+        sendResponse({success: true});
+    } else if (request.type === "removeFavorite") {
+        await removeFavorite(request.favorite);
+        sendResponse({success: true});
     }
 })();
         return true; // indicates that we will send the response asynchronously
