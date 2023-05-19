@@ -142,14 +142,26 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
             success: true,
             followList: combinedList
         });
-    } else if (request.type === "addFavoriteTwitch") {
-        await addFavorite(request.favorite);
-        sendResponse({success: true});
-    } else if (request.type === "removeFavorite") {
-        await removeFavorite(request.favorite);
-        sendResponse({success: true});
+    } else if (request.type === "toggleFavorite") {
+        const favorite = request.favorite;
+        const favorites = await toggleFavorite(favorite);
+        sendResponse({success: true, favorites});
     }
 })();
         return true; // indicates that we will send the response asynchronously
 });
 
+
+// MISC FUNCTIONS
+
+async function toggleFavorite(favorite) {
+    const favorites = await getFavorites();
+    const index = favorites.indexOf(favorite);
+    if (index !== -1) {
+        favorites.splice(index, 1);
+    } else {
+        favorites.push(favorite);
+    }
+    await chrome.storage.local.set({ favorites });
+    return favorites;
+}
