@@ -20,6 +20,7 @@ chrome.runtime.sendMessage("fetchTwitchData", async function(response) {
             li.appendChild(favoriteButton);
             twitchList.appendChild(li);
         });
+        orderListByFavorites();
         
     } else {
         console.error("Error retrieving data from background script");
@@ -30,17 +31,48 @@ function orderListByFavorites() {
     chrome.storage.local.get("favorites", function(data) {
         let favorites = data.favorites || [];
         let twitchList = document.getElementById("twitchList");
-        let listItems = Array.from(twitchList.getElementsByTagName("li"));
-        listItems.sort(function(a, b) {
-            if (favorites.includes(a.innerText)) {
-            return -1;
-            } else if (favorites.includes(b.innerText)) {
-            return 1;
-            } else {
-            return 0;
-            }
-        });
+        let listItems = Array.from(twitchList.querySelectorAll("li"));
+        console.log(listItems);
+
+        // listItems.sort(function(a, b) {
+        //     if (favorites.includes(a.innerText)) {
+        //         console.log(a.innerText, "-1");
+        //         return -1;
+        //     } else if (favorites.includes(b.innerText)) {
+        //         console.log(a.innerText, "1");
+        //         return 1;
+        //     } else {
+        //         console.log(a.innerText, "0");
+        //         return 0;
+        //     }
+        // });
+
+        console.log(listItems);
+
+        while (twitchList.firstChild) {
+            twitchList.removeChild(twitchList.firstChild);
+        }
+        console.log(twitchList);
+
         listItems.forEach(function(li) {
+            let itemText = li.innerText;
+
+            let favoriteButton = li.querySelector("button");
+
+            if (!favoriteButton) {
+                favoriteButton = document.createElement("button");
+                favoriteButton.addEventListener("click", function() {
+                    toggleFavorite(itemText, favoriteButton);
+                });
+                li.appendChild(favoriteButton);
+            }
+
+            if (favorites.includes(itemText)) {
+                favoriteButton.innerText = "Unfavorite";
+            } else {
+                favoriteButton.innerText = "Favorite";
+            }
+
             twitchList.appendChild(li);
         });
     });
@@ -49,11 +81,12 @@ function orderListByFavorites() {
 function toggleFavorite(item, favoriteButton) {
     chrome.runtime.sendMessage({ type: "toggleFavorite", favorite: item }, function(response) {
         if (response && response.success) {
-            if (favoriteButton.addEventListener === "Favorite") {
+            if (favoriteButton.innerText === "Favorite") {
                 favoriteButton.innerText = "Unfavorite";
             } else {
                 favoriteButton.innerText = "Favorite";
             }
+            console.log("Favorite toggled");
             orderListByFavorites();
         } else {
             console.error("Error toggling favorite");
