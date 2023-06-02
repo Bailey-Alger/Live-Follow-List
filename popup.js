@@ -1,3 +1,6 @@
+const favName = "+";
+const unFavName = "-";
+
 chrome.runtime.sendMessage("fetchTwitchData", async function(response) {
     if (response && response.followList) {
         console.log("response successful");
@@ -12,7 +15,7 @@ chrome.runtime.sendMessage("fetchTwitchData", async function(response) {
             let li = document.createElement("li");
             li.innerText = item;
             let favoriteButton = document.createElement("button");
-            favoriteButton.innerText = "Favorite";
+            favoriteButton.innerText = favName;
             favoriteButton.addEventListener("click", function() {
                 toggleFavorite(item, favoriteButton);
             });
@@ -30,9 +33,7 @@ chrome.runtime.sendMessage("fetchTwitchData", async function(response) {
 function orderListByFavorites() {
     chrome.storage.local.get("favorites", function(data) {
         let favorites = data.favorites || [];
-        let twitchList = document.getElementById("twitchList");
-        let listItems = Array.from(twitchList.querySelectorAll("li"));
-        console.log(listItems);
+        let twitchList = []; //change
 
         // listItems.sort(function(a, b) {
         //     if (favorites.includes(a.innerText)) {
@@ -68,9 +69,9 @@ function orderListByFavorites() {
             }
 
             if (favorites.includes(itemText)) {
-                favoriteButton.innerText = "Unfavorite";
+                favoriteButton.innerText = unFavName;
             } else {
-                favoriteButton.innerText = "Favorite";
+                favoriteButton.innerText = unFavName;
             }
 
             twitchList.appendChild(li);
@@ -81,10 +82,10 @@ function orderListByFavorites() {
 function toggleFavorite(item, favoriteButton) {
     chrome.runtime.sendMessage({ type: "toggleFavorite", favorite: item }, function(response) {
         if (response && response.success) {
-            if (favoriteButton.innerText === "Favorite") {
-                favoriteButton.innerText = "Unfavorite";
+            if (favoriteButton.innerText === favName) {
+                favoriteButton.innerText = unFavName;
             } else {
-                favoriteButton.innerText = "Favorite";
+                favoriteButton.innerText = favName;
             }
             console.log("Favorite toggled");
             orderListByFavorites();

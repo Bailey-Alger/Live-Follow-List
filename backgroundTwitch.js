@@ -3,6 +3,8 @@ import { CLIENT_SECRET } from "./config.js";
 const tokenPromise = fetchOAuth();
 const userID = fetchUserID();
 const clientId = 'pa669by8xti1oag6giphneaeykt6ln';
+const favName = "+";
+const unFavName = "-";
 
 
 // FETCHES
