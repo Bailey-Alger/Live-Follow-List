@@ -11,8 +11,9 @@ const unFavName = "-";
 
 async function fetchCombinedList() {
     const followList = await fetchFollowList();
-    const favorites = await getFavorites() || [];
-    return [...favorites, ...followList.filter(item => !favorites.includes(item))];
+    const favorites = sortCaseInsensitive(await getFavorites()) || [];
+
+    return [...favorites.filter(item => followList.includes(item)).map(item => item + unFavName), ...followList.filter(item => !favorites.includes(item)).map(item => item + favName)];
 };
 
 async function fetchFollowList() {
@@ -97,7 +98,8 @@ async function fetchUserID() {
 
 async function getFavorites() {
     const favorites = await new Promise(resolve => chrome.storage.local.get(['favorites'], resolve));
-    return favorites ? favorites.favorites : [];
+    console.log(await favorites);
+    return favorites && favorites.favorites ? favorites.favorites : [];
 };
 
 async function addFavorite(favorite) {
@@ -145,9 +147,10 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
             followList: combinedList
         });
     } else if (request.type === "toggleFavorite") {
-        const favorite = request.favorite;
-        const favorites = await toggleFavorite(favorite);
-        sendResponse({success: true, favorites});
+        const favorite = request.favorite.slice(0, -1);
+        console.log(favorite);
+        const combinedList = await toggleFavorite(favorite);
+        sendResponse({success: true, combinedList});
     }
 })();
         return true; // indicates that we will send the response asynchronously
@@ -165,5 +168,9 @@ async function toggleFavorite(favorite) {
         favorites.push(favorite);
     }
     await chrome.storage.local.set({ favorites });
-    return favorites;
+    return await fetchCombinedList();
 }
+
+function sortCaseInsensitive(arr) {
+    return arr.sort((a, b) => a.localeCompare(b, undefined, { sensitivity: 'base' }));
+};
