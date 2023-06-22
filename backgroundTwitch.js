@@ -57,6 +57,12 @@ async function fetchIsLive(channel) {
 };
 
 async function fetchOAuth() {
+    const token = await getStoredOAuth();
+    console.log(token);
+    if (await fetchTokenIsValid(token)){
+        return token;
+    };
+
     let response = await fetch("https://id.twitch.tv/oauth2/token", {
         method: "POST",
         headers: {
@@ -65,9 +71,9 @@ async function fetchOAuth() {
         body: JSON.stringify({"client_id": "pa669by8xti1oag6giphneaeykt6ln", "client_secret": CLIENT_SECRET, "grant_type": "client_credentials"})
     });
     let data = await response.json();
+    setStoredOAuth(data.access_token);
     return data.access_token;
 };
-// TODO: record token time limit and only fetch if not stored
 
 async function fetchUserID() {
     // Check if userID is stored locally
@@ -91,6 +97,17 @@ async function fetchUserID() {
     await setStoredUserID(fetchedUserID);
     console.log("User ID fetched from Twitch API.");
     return fetchedUserID;
+};
+
+async function fetchTokenIsValid(token) {
+    let response = await fetch("https://id.twitch.tv/oauth2/validate", {
+        headers: {
+            "Authorization": `OAuth ${token}`
+        }
+    });
+    //const statusCode = response.status;
+    const isSuccessful = response.ok;
+    return isSuccessful;
 };
 
 
@@ -129,6 +146,23 @@ function getStoredUserID() {
 function setStoredUserID(userID) {
     return new Promise((resolve) => {
         chrome.storage.local.set({ userID: userID }, () => {
+            resolve();
+        });
+    });
+};
+
+function getStoredOAuth() {
+    return new Promise((resolve) => {
+        chrome.storage.local.get(["token"], (result) => {
+            const token = result.token;
+            resolve(token || "Missing_Token");
+        });
+    });
+};
+
+function setStoredOAuth(token) {
+    return new Promise((resolve) => {
+        chrome.storage.local.set({ token: token }, () => {
             resolve();
         });
     });
