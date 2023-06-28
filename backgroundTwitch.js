@@ -10,7 +10,12 @@ const unFavName = "-";
 // FETCHES
 
 async function fetchCombinedList() {
-    const followList = await fetchFollowList();
+    let followList = await getStoredFollowList();
+    console.log(followList);
+    if (!Array.isArray(followList)) {
+        followList = fetchFollowList();
+    };
+    followList = sortCaseInsensitive(followList || []);
     const favorites = sortCaseInsensitive(await getFavorites()) || [];
 
     return [...favorites.filter(item => followList.includes(item)).map(item => item + unFavName), ...followList.filter(item => !favorites.includes(item)).map(item => item + favName)];
@@ -19,6 +24,7 @@ async function fetchCombinedList() {
 async function fetchFollowList() {
     const iD = await userID;
     const authToken = await tokenPromise;
+    // get followlist
     let followList = [];
     let response = await fetch(`https://api.twitch.tv/helix/users/follows?from_id=${iD}&first=100`, {
         headers: {
@@ -37,6 +43,7 @@ async function fetchFollowList() {
     })
     await Promise.all(promises);
     console.log("follow list created");
+    setStoredFollowList(followList);
     return followList;
 };
 
@@ -50,6 +57,7 @@ async function fetchIsLive(channel) {
         }
     });
     let data = await response.json();
+    console.log(data);
     if ((data.data.length > 0) && data.data[0].is_live) {
         isLive = true;
     };
@@ -119,20 +127,20 @@ async function getFavorites() {
     return favorites && favorites.favorites ? favorites.favorites : [];
 };
 
-async function addFavorite(favorite) {
-    let favorites = await getFavorites();
-    favorites.push(favorite);
-    await chrome.storage.local.set({favorites});
-};
+// async function addFavorite(favorite) {
+//     let favorites = await getFavorites();
+//     favorites.push(favorite);
+//     await chrome.storage.local.set({favorites});
+// };
 
-async function removeFavorite(favorite) {
-    let favorites = await getFavorites();
-    const index = favorites.indexOf(favorite);
-    if (index !== -1) {
-        favorites.splice(index, 1);
-        await chrome.storage.local.set({favorites});
-    }
-};
+// async function removeFavorite(favorite) {
+//     let favorites = await getFavorites();
+//     const index = favorites.indexOf(favorite);
+//     if (index !== -1) {
+//         favorites.splice(index, 1);
+//         await chrome.storage.local.set({favorites});
+//     }
+// };
 
 function getStoredUserID() {
     return new Promise((resolve) => {
@@ -167,6 +175,32 @@ function setStoredOAuth(token) {
         });
     });
 };
+
+function getStoredFollowList() {
+    return new Promise((resolve) => {
+        chrome.storage.local.get(["followList"], (result) => {
+            const followList = result.followList;
+            resolve(followList);
+        });
+    });
+};
+
+async function setStoredFollowList(followList) {
+    return new Promise((resolve) => {
+        chrome.storage.local.set({ followList: followList }, () => {
+            resolve();
+        });
+    }).then(() => {
+        chrome.alarms.clear("fetchFollow");
+        chrome.alarms.create("fetchFollow", { delayInMinutes: 1 });
+        chrome.alarms.onAlarm.addListener((alarm) => {
+            if (alarm.name === "fetchFollow") {
+                fetchFollowList();
+            }
+        });
+    });
+};
+
 
 
 // LISTENERS
