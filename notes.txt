@@ -12,4 +12,4 @@ transition to "Get Followed Streams" API with user access tokens.
 `Chrome pages follows a chrome-extension:// protocol which is invalid for a redirect url. So chrome has provided a way to provide redirect url of an extension in the form https://<app-id>.chromiumapp.org/* + 'provider_cb' which works pretty well with chrome.identity.launchWebAuthFlow(). You dont need a runnning server for it. More info : developer.chrome.com/apps/app_identity#non`
 `The github-auth example app url referenced above has changed since the original reply in 2015`
 
-TODO: FIX LIST NOT UPDATING
+TODO: API ROUTE HAS BEEN REMOVED BY TWITCH. UPDATE API REQUESTS TO USE A USER ACCESS TOKEN TO "Get Fallowed Streams".

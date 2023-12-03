@@ -13,8 +13,9 @@ async function fetchCombinedList() {
     let followList = await getStoredFollowList();
     console.log(followList);
     if (!Array.isArray(followList)) {
-        followList = fetchFollowList();
+        followList = await fetchFollowList();
     };
+    console.log(followList);
     followList = sortCaseInsensitive(followList || []);
     const favorites = sortCaseInsensitive(await getFavorites()) || [];
 
@@ -22,6 +23,7 @@ async function fetchCombinedList() {
 };
 
 async function fetchFollowList() {
+    console.log("Fetching follow list from twitch api.");
     const iD = await userID;
     const authToken = await tokenPromise;
     // get followlist
@@ -43,6 +45,7 @@ async function fetchFollowList() {
     })
     await Promise.all(promises);
     console.log("follow list created");
+    console.log(followList);
     setStoredFollowList(followList);
     return followList;
 };
@@ -240,5 +243,6 @@ async function toggleFavorite(favorite) {
 }
 
 function sortCaseInsensitive(arr) {
+    console.log("Sorting: ", arr);
     return arr.sort((a, b) => a.localeCompare(b, undefined, { sensitivity: 'base' }));
 };
