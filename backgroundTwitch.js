@@ -132,6 +132,15 @@ const unFavName = "-";
 
 // GET/SET CHROME STORAGE
 
+async function getStoredAccesstoken() {
+    return new Promise((resolve) => {
+        chrome.storage.local.get(["accessToken"], (result) => {
+            const accessToken = result.accessToken;
+            resolve(accessToken);
+        })
+    })
+};
+
 // async function getFavorites() {
 //     const favorites = await new Promise(resolve => chrome.storage.local.get(['favorites'], resolve));
 //     console.log(await favorites);
@@ -242,7 +251,7 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
         if (url.hash && !url.search) {
             const accessToken = url.hash.slice(14, url.hash.indexOf('&'));
             console.log(accessToken);
-            await chrome.storage.local.set({ accessToken });
+            chrome.storage.local.set({ accessToken });
         } else if (!url.hash && url.search) {
             console.log(url.search);
         } else {
