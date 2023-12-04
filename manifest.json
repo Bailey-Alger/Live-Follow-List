@@ -14,6 +14,10 @@
         "tabs",
         "alarms"
     ],
+    "oauth2": {
+        "client_id": "pa669by8xti1oag6giphneaeykt6ln",
+        "scopes": ["user:read:follows"]
+    },
     "action": {
         "default_popup": "popup.html"
       },
@@ -23,7 +27,7 @@
     },
     "web_accessible_resources": [
         {
-            "resources": ["style.css"],
+            "resources": ["index.css"],
             "matches": ["https://*.twitch.tv/*"]
         }
     ]
