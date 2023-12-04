@@ -1,11 +1,11 @@
 import { CLIENT_SECRET } from "./config.js";
 
-// const tokenPromise = fetchOAuth();
-// const userID = fetchUserID();
+var tokenPromise = getStoredAccesstoken();
+var userID = getStoredUserID();
 const clientId = 'pa669by8xti1oag6giphneaeykt6ln';
 const favName = "+";
 const unFavName = "-";
-
+fetchFollowList();
 // chrome.identity.launchWebAuthFlow({
 //     url: 'https://id.twitch.tv/oauth2/authorize?response_type=token&client_id=pa669by8xti1oag6giphneaeykt6ln&redirect_uri=https://cpoaimdmdpkehkijhkidhdlacmogedel.chromiumapp.org&scope=user%3Aread%3Afollows',
 //     interactive: true
@@ -30,33 +30,38 @@ const unFavName = "-";
 //     return [...favorites.filter(item => followList.includes(item)).map(item => item + unFavName), ...followList.filter(item => !favorites.includes(item)).map(item => item + favName)];
 // };
 
-// async function fetchFollowList() {
-//     console.log("Fetching follow list from twitch api.");
-//     const iD = await userID;
-//     const authToken = await tokenPromise;
-//     // get followlist
-//     let followList = [];
-//     let response = await fetch(`https://api.twitch.tv/helix/users/follows?from_id=${iD}&first=100`, {
-//         headers: {
-//             "Authorization": `Bearer ${authToken}`,
-//             "Client-Id": "pa669by8xti1oag6giphneaeykt6ln" 
-//         }
-//     });
-//     let data = await response.json();
-//     console.log(data);
-//     let promises = data.data.map(async (item) => {
-//         let isLive = await fetchIsLive(item.to_name);
-//         if (isLive) {
-//             console.log(item.to_name);
-//             followList.push(item.to_name);
-//         };
-//     })
-//     await Promise.all(promises);
-//     console.log("follow list created");
-//     console.log(followList);
-//     setStoredFollowList(followList);
-//     return followList;
-// };
+async function fetchFollowList() {
+    console.log("Fetching follow list from twitch api.");
+    const ID = await userID;
+    const authToken = await tokenPromise;
+    // get followlist
+    let followList = [];
+    let response = await fetch(`https://api.twitch.tv/helix/streams/followed?user_id=${ID}&first=100`, {
+        headers: {
+            "Authorization": `Bearer ${authToken}`,
+            "Client-Id": "pa669by8xti1oag6giphneaeykt6ln" 
+        }
+    });
+    let data = await response.json();
+    console.log(data);
+    // let promises = data.data.map(async (item) => {
+    //     let isLive = await fetchIsLive(item.to_name);
+    //     if (isLive) {
+    //         console.log(item.to_name);
+    //         followList.push(item.to_name);
+    //     };
+    // })
+    // await Promise.all(promises);
+    let promises = data.data.map(async (item) => {
+        console.log(item.user_name);
+        followList.push(item.user_name);
+    });
+    await Promise.all(promises);
+    console.log("follow list created");
+    console.log(followList);
+    setStoredFollowList(followList);
+    return followList;
+};
 
 // async function fetchIsLive(channel) {
 //     let isLive = false;
@@ -127,6 +132,7 @@ async function fetchTokenIsValid(token) {
     //const statusCode = response.status;
     const isSuccessful = response.ok;
     if (isSuccessful) {
+        userID = response.user_id;
         setStoredUserID(response.user_id);
     };
     return isSuccessful;
@@ -200,30 +206,30 @@ function setStoredUserID(userID) {
 //     });
 // };
 
-// function getStoredFollowList() {
-//     return new Promise((resolve) => {
-//         chrome.storage.local.get(["followList"], (result) => {
-//             const followList = result.followList;
-//             resolve(followList);
-//         });
-//     });
-// };
+function getStoredFollowList() {
+    return new Promise((resolve) => {
+        chrome.storage.local.get(["followList"], (result) => {
+            const followList = result.followList;
+            resolve(followList);
+        });
+    });
+};
 
-// async function setStoredFollowList(followList) {
-//     return new Promise((resolve) => {
-//         chrome.storage.local.set({ followList: followList }, () => {
-//             resolve();
-//         });
-//     }).then(() => {
-//         chrome.alarms.clear("fetchFollow");
-//         chrome.alarms.create("fetchFollow", { delayInMinutes: 1 });
-//         chrome.alarms.onAlarm.addListener((alarm) => {
-//             if (alarm.name === "fetchFollow") {
-//                 fetchFollowList();
-//             }
-//         });
-//     });
-// };
+async function setStoredFollowList(followList) {
+    return new Promise((resolve) => {
+        chrome.storage.local.set({ followList: followList }, () => {
+            resolve();
+        });
+    }).then(() => {
+        chrome.alarms.clear("fetchFollow");
+        chrome.alarms.create("fetchFollow", { delayInMinutes: 1 });
+        chrome.alarms.onAlarm.addListener((alarm) => {
+            if (alarm.name === "fetchFollow") {
+                fetchFollowList();
+            }
+        });
+    });
+};
 
 
 
