@@ -118,16 +118,19 @@ const unFavName = "-";
 //     return fetchedUserID;
 // };
 
-// async function fetchTokenIsValid(token) {
-//     let response = await fetch("https://id.twitch.tv/oauth2/validate", {
-//         headers: {
-//             "Authorization": `OAuth ${token}`
-//         }
-//     });
-//     //const statusCode = response.status;
-//     const isSuccessful = response.ok;
-//     return isSuccessful;
-// };
+async function fetchTokenIsValid(token) {
+    let response = await fetch("https://id.twitch.tv/oauth2/validate", {
+        headers: {
+            "Authorization": `OAuth ${token}`
+        }
+    });
+    //const statusCode = response.status;
+    const isSuccessful = response.ok;
+    if (isSuccessful) {
+        setStoredUserID(response.user_id);
+    };
+    return isSuccessful;
+};
 
 
 // GET/SET CHROME STORAGE
@@ -162,22 +165,23 @@ async function getStoredAccesstoken() {
 //     }
 // };
 
-// function getStoredUserID() {
-//     return new Promise((resolve) => {
-//         chrome.storage.local.get(["userID"], (result) => {
-//             const userID = result.userID;
-//             resolve(userID);
-//         });
-//     });
-// };
+function getStoredUserID() {
+    return new Promise((resolve) => {
+        chrome.storage.local.get(["userID"], (result) => {
+            const userID = result.userID;
+            resolve(userID);
+        });
+    });
+};
 
-// function setStoredUserID(userID) {
-//     return new Promise((resolve) => {
-//         chrome.storage.local.set({ userID: userID }, () => {
-//             resolve();
-//         });
-//     });
-// };
+function setStoredUserID(userID) {
+    return new Promise((resolve) => {
+        chrome.storage.local.set({ userID: userID }, () => {
+            console.log("user ID stored.");
+            resolve();
+        });
+    });
+};
 
 // function getStoredOAuth() {
 //     return new Promise((resolve) => {
@@ -252,6 +256,7 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
             const accessToken = url.hash.slice(14, url.hash.indexOf('&'));
             console.log(accessToken);
             chrome.storage.local.set({ accessToken });
+            fetchTokenIsValid(accessToken);
         } else if (!url.hash && url.search) {
             console.log(url.search);
         } else {
