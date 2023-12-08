@@ -1,9 +1,9 @@
 const favName = "+";
 const unFavName = "-";
-const button = document.querySelector('button');
+const loginTwitch = document.querySelector('#loginTwitch');
 
 // state being wowee might break it
-function onButtonClick() {
+function onLoginTwitchClick() {
     chrome.identity.launchWebAuthFlow({
         url: 'https://id.twitch.tv/oauth2/authorize?response_type=token&client_id=pa669by8xti1oag6giphneaeykt6ln&redirect_uri=https%3A%2F%2Fcpoaimdmdpkehkijhkidhdlacmogedel.chromiumapp.org&scope=user%3Aread%3Afollows&state=wowee',
         interactive: true
@@ -14,52 +14,52 @@ function onButtonClick() {
     })
 };
 
-button.addEventListener('click', onButtonClick);
+loginTwitch.addEventListener('click', onLoginTwitchClick);
 
 // console.log(document.location.hash);
-// fetchTwitchData();
+fetchTwitchData();
 
-// async function fetchTwitchData(){
-//     chrome.runtime.sendMessage("fetchTwitchData", async function(response) {
-//         if (response && response.followList) {
-//             console.log("response successful");
-//             console.log(response.followList);
+async function fetchTwitchData(){
+    chrome.runtime.sendMessage("fetchTwitchData", async function(response) {
+        if (response && response.followList) {
+            console.log("response successful");
+            console.log(response.followList);
 
-//             // const followList = sortCaseInsensitive(response.followList);
-//             const followList = response.followList;
+            // const followList = sortCaseInsensitive(response.followList);
+            const followList = response.followList;
 
-//             let twitchList = document.getElementById("twitchList");
+            let twitchList = document.getElementById("twitchList");
 
-//             console.log(followList);
+            console.log(followList);
             
-//             while (twitchList.firstChild) {
-//                 twitchList.removeChild(twitchList.firstChild);
-//             };
+            while (twitchList.firstChild) {
+                twitchList.removeChild(twitchList.firstChild);
+            };
 
-//             followList.forEach((item) => {
-//                 let li = document.createElement("li");
-//                 li.innerText = item.slice(0, -1);
-//                 if (li.querySelector("button") == null) {
-//                     let favoriteButton = document.createElement("button");
-//                     if (item[item.length - 1] == "-"){
-//                         favoriteButton.innerText = unFavName;
-//                     } else {
-//                         favoriteButton.innerText = favName;
-//                     }
-//                     favoriteButton.addEventListener("click", function() {
-//                         toggleFavorite(item, favoriteButton);
-//                     });
-//                     li.appendChild(favoriteButton);               
-//                 };
-//                 twitchList.appendChild(li);
-//             });
-//             // orderListByFavorites();
+            followList.forEach((item) => {
+                let li = document.createElement("li");
+                li.innerText = item.slice(0, -1);
+                if (li.querySelector("button") == null) {
+                    let favoriteButton = document.createElement("button");
+                    if (item[item.length - 1] == "-"){
+                        favoriteButton.innerText = unFavName;
+                    } else {
+                        favoriteButton.innerText = favName;
+                    }
+                    favoriteButton.addEventListener("click", function() {
+                        toggleFavorite(item, favoriteButton);
+                    });
+                    li.appendChild(favoriteButton);               
+                };
+                twitchList.appendChild(li);
+            });
+            // orderListByFavorites();
             
-//         } else {
-//             console.error("Error retrieving data from background script");
-//         }
-//     });
-// };
+        } else {
+            console.error("Error retrieving data from background script");
+        }
+    });
+};
 
 // function orderListByFavorites() {
 //     chrome.storage.local.get("favorites", function(data) {
@@ -110,33 +110,33 @@ button.addEventListener('click', onButtonClick);
 //     });
 // };
 
-// function toggleFavorite(item, favoriteButton) {
-//     chrome.runtime.sendMessage({ type: "toggleFavorite", favorite: item }, function(response) {
-//         if (response && response.success) {
-//             if (favoriteButton.innerText === favName) {
-//                 favoriteButton.innerText = unFavName;
-//             } else {
-//                 favoriteButton.innerText = favName;
-//             }
-//             console.log("Favorite toggled");
-//             fetchTwitchData();
-//         } else {
-//             console.error("Error toggling favorite");
-//         }
-//     });
-// };
+function toggleFavorite(item, favoriteButton) {
+    chrome.runtime.sendMessage({ type: "toggleFavorite", favorite: item }, function(response) {
+        if (response && response.success) {
+            if (favoriteButton.innerText === favName) {
+                favoriteButton.innerText = unFavName;
+            } else {
+                favoriteButton.innerText = favName;
+            }
+            console.log("Favorite toggled");
+            fetchTwitchData();
+        } else {
+            console.error("Error toggling favorite");
+        }
+    });
+};
   
 function sendOAuthURL(url){
     chrome.runtime.sendMessage({ type: 'OAuthURL', url})
 };
 
-// function sortCaseInsensitive(arr) {
-//     return arr.sort((a, b) => a.localeCompare(b, undefined, { sensitivity: 'base' }));
-// };
+function sortCaseInsensitive(arr) {
+    return arr.sort((a, b) => a.localeCompare(b, undefined, { sensitivity: 'base' }));
+};
 
 // chrome.storage.onChanged.addListener(function(changes, namespace) {
 //     if (changes.favorites) {
         
-//         //orderListByFavorites();
+//         orderListByFavorites();
 //     }
 // });

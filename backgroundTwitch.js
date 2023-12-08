@@ -299,17 +299,17 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
 
 // MISC FUNCTIONS
 
-// async function toggleFavorite(favorite) {
-//     const favorites = await getFavorites();
-//     const index = favorites.indexOf(favorite);
-//     if (index !== -1) {
-//         favorites.splice(index, 1);
-//     } else {
-//         favorites.push(favorite);
-//     }
-//     await chrome.storage.local.set({ favorites });
-//     return await fetchCombinedList();
-// }
+async function toggleFavorite(favorite) {
+    const favorites = await getFavorites();
+    const index = favorites.indexOf(favorite);
+    if (index !== -1) {
+        favorites.splice(index, 1);
+    } else {
+        favorites.push(favorite);
+    }
+    await chrome.storage.local.set({ favorites });
+    return await fetchCombinedList();
+}
 
 function sortCaseInsensitive(arr) {
     console.log("Sorting: ", arr);
