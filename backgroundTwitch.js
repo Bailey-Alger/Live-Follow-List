@@ -1,11 +1,9 @@
 import { CLIENT_SECRET } from "./config.js";
 
 var tokenPromise = getStoredAccesstoken();
-var userID = getStoredUserID();
-const clientId = 'pa669by8xti1oag6giphneaeykt6ln';
+const clientID = 'pa669by8xti1oag6giphneaeykt6ln';
 const favName = "+";
 const unFavName = "-";
-console.log(fetchCombinedList());
 
 // chrome.identity.launchWebAuthFlow({
 //     url: 'https://id.twitch.tv/oauth2/authorize?response_type=token&client_id=pa669by8xti1oag6giphneaeykt6ln&redirect_uri=https://cpoaimdmdpkehkijhkidhdlacmogedel.chromiumapp.org&scope=user%3Aread%3Afollows',
@@ -36,8 +34,8 @@ async function fetchCombinedList() {
 
 async function fetchFollowList() {
     console.log("Fetching follow list from twitch api.");
-    const ID = await userID;
-    const authToken = await tokenPromise;
+    const ID = await getStoredUserID();
+    const authToken = await getStoredAccesstoken();
     // get followlist
     let followList = [];
     let response = await fetch(`https://api.twitch.tv/helix/streams/followed?user_id=${ID}&first=100`, {
@@ -136,11 +134,23 @@ async function fetchTokenIsValid(token) {
     });
     //const statusCode = response.status;
     const isSuccessful = response.ok;
-    if (isSuccessful) {
-        userID = response.user_id;
-        setStoredUserID(response.user_id);
-    };
+    //console.log(isSuccessful);
     return isSuccessful;
+};
+
+async function fetchUserID() {
+    let response = await fetch("https://api.twitch.tv/helix/users", {
+        headers: {
+            "Authorization": `Bearer ${await getStoredAccesstoken()}`,
+            "Client-ID": `${clientID}`
+        }
+    });
+    if (response.ok) {
+        let data = await response.json();
+        console.log(data);
+        console.log(data.data[0].id);
+        setStoredUserID(data.data[0].id);
+    } else {console.error('user ID fetch denied')};
 };
 
 
@@ -167,6 +177,10 @@ async function getTimeLastFetched() {
 async function getStoredAccesstoken() {
     return new Promise((resolve) => {
         chrome.storage.local.get(["accessToken"], (result) => {
+            // console.log(result.accessToken);
+            if (result.accessToken === undefined){
+                resolve('1234');
+            }
             const accessToken = result.accessToken;
             resolve(accessToken);
         })
@@ -243,14 +257,6 @@ async function setStoredFollowList(followList) {
         chrome.storage.local.set({ followList: followList }, () => {
             resolve();
         });
-    }).then(() => {
-        chrome.alarms.clear("fetchFollow");
-        chrome.alarms.create("fetchFollow", { delayInMinutes: 1 });
-        chrome.alarms.onAlarm.addListener((alarm) => {
-            if (alarm.name === "fetchFollow") {
-                fetchFollowList();
-            }
-        });
     });
 };
 
@@ -265,12 +271,20 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
     console.log("message recieved: ");
     console.log(request);
     if (request === "fetchTwitchData") {
-        const combinedList = await fetchCombinedList();
-        sendResponse({
-            success: true,
-            followList: combinedList
-        });
-
+        console.log(await getStoredAccesstoken());
+        if ( await fetchTokenIsValid(await getStoredAccesstoken()) ) {
+            // console.log(await fetchTokenIsValid(await getStoredAccesstoken()))
+            // console.log(await fetchTokenIsValid("545454"));
+            const combinedList = await fetchCombinedList();
+            sendResponse({
+                success: true,
+                followList: combinedList
+            });
+        } else {
+            sendResponse({
+                success: false
+            });
+        }
     } else if (request.type === "toggleFavorite") {
         const favorite = request.favorite.slice(0, -1);
         console.log(favorite);
@@ -286,6 +300,7 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
             console.log(accessToken);
             chrome.storage.local.set({ accessToken });
             fetchTokenIsValid(accessToken);
+            fetchUserID();
         } else if (!url.hash && url.search) {
             console.log(url.search);
         } else {

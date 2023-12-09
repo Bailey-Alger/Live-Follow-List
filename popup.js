@@ -12,12 +12,27 @@ function onLoginTwitchClick() {
         console.log(redirect_url);
         sendOAuthURL(redirect_url);
     })
+    console.log("url sent to background script");
+    try {
+        try {
+            setTimeout(() => {
+                fetchTwitchData();
+            }, 2000);
+        } catch(error) {
+            console.log("Error fetching data, trying again in 10 seconds");
+        }
+        setTimeout(() => {
+            fetchTwitchData();
+        }, 10000);
+    } catch(error) {
+        console.log(error);
+    }
 };
 
 loginTwitch.addEventListener('click', onLoginTwitchClick);
 
 // console.log(document.location.hash);
-fetchTwitchData();
+try{fetchTwitchData();}catch(error){console.log("Please Login");};
 
 async function fetchTwitchData(){
     chrome.runtime.sendMessage("fetchTwitchData", async function(response) {
@@ -56,6 +71,7 @@ async function fetchTwitchData(){
             // orderListByFavorites();
             
         } else {
+            console.log(response);
             console.error("Error retrieving data from background script");
         }
     });
