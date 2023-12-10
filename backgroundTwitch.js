@@ -1,9 +1,10 @@
 import { CLIENT_SECRET } from "./config.js";
 
-var tokenPromise = getStoredAccesstoken();
+// var tokenPromise = getStoredAccesstoken();
 const clientID = 'pa669by8xti1oag6giphneaeykt6ln';
 const favName = "+";
 const unFavName = "-";
+// const extID = chrome.runtime.id;
 
 // chrome.identity.launchWebAuthFlow({
 //     url: 'https://id.twitch.tv/oauth2/authorize?response_type=token&client_id=pa669by8xti1oag6giphneaeykt6ln&redirect_uri=https://cpoaimdmdpkehkijhkidhdlacmogedel.chromiumapp.org&scope=user%3Aread%3Afollows',
@@ -21,7 +22,7 @@ async function fetchCombinedList() {
     console.log(followList);
     if (!Array.isArray(followList)) {
         followList = await fetchFollowList();
-    } else if ((Date.now() - 60000) > getTimeLastFetched()) {
+    } else if ((Date.now() - 60000) > getTimeLastFetched(`fetchFollowList`)) {
         followList = await fetchFollowList();
     }; // calls fetchFollowList if it has been more than a minute since the list was last updated
     
@@ -36,6 +37,8 @@ async function fetchFollowList() {
     console.log("Fetching follow list from twitch api.");
     const ID = await getStoredUserID();
     const authToken = await getStoredAccesstoken();
+    console.log(ID);
+    console.log(authToken);
     // get followlist
     let followList = [];
     let response = await fetch(`https://api.twitch.tv/helix/streams/followed?user_id=${ID}&first=100`, {
@@ -62,7 +65,7 @@ async function fetchFollowList() {
     console.log("follow list created");
     console.log(followList);
     setStoredFollowList(followList);
-    setTimeLastFetched();
+    setTimeLastFetched('fetchFollowList');
     return followList;
 };
 
@@ -127,11 +130,24 @@ async function fetchFollowList() {
 // };
 
 async function fetchTokenIsValid(token) {
-    let response = await fetch("https://id.twitch.tv/oauth2/validate", {
-        headers: {
-            "Authorization": `OAuth ${token}`
-        }
-    });
+    // // this is unstable, change later
+    // if ((Date.now() - 1000) > getTimeLastFetched(`fetchTokenIsValid`)) {
+    //     let response = await fetch("https://id.twitch.tv/oauth2/validate", {
+    //         headers: {
+    //             "Authorization": `OAuth ${token}`
+    //         }
+    //     });
+    //     //const statusCode = response.status;
+    //     const isSuccessful = response.ok;
+    //     setTimeLastFetched('fetchTokenIsValid');
+    //     //console.log(isSuccessful);
+    //     return isSuccessful;
+    // } else { return false };
+        let response = await fetch("https://id.twitch.tv/oauth2/validate", {
+            headers: {
+                "Authorization": `OAuth ${token}`
+            }
+        });
     //const statusCode = response.status;
     const isSuccessful = response.ok;
     //console.log(isSuccessful);
@@ -149,25 +165,25 @@ async function fetchUserID() {
         let data = await response.json();
         console.log(data);
         console.log(data.data[0].id);
-        setStoredUserID(data.data[0].id);
+        return data.data[0].id;
     } else {console.error('user ID fetch denied')};
 };
 
 
 // GET/SET CHROME STORAGE
 
-async function setTimeLastFetched() {
+async function setTimeLastFetched(functName) {
     return new Promise((resolve) => {
-        chrome.storage.local.set({ timeStamp: Date.now() }, () => {
-            console.log("Time set");
+        chrome.storage.local.set({ [`${functName}`]: Date.now() }, () => {
+            console.log(`Time set for ${functName}`);
             resolve();
         });
     });
 };
 
-async function getTimeLastFetched() {
+async function getTimeLastFetched(functName) {
     return new Promise((resolve) => {
-        chrome.storage.local.get(["timeStamp"], (result) => {
+        chrome.storage.local.get([`${functName}`], (result) => {
             const timeStamp = result.timeStamp;
             resolve(timeStamp);
         })
@@ -285,13 +301,13 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
                 success: false
             });
         }
-    } else if (request.type === "toggleFavorite") {
+    } else if (await request.type === "toggleFavorite") {
         const favorite = request.favorite.slice(0, -1);
         console.log(favorite);
         const combinedList = await toggleFavorite(favorite);
         sendResponse({success: true, combinedList});
 
-    } else if (request.type === "OAuthURL") {
+    } else if (await request.type === "OAuthURL") {
         var url = new URL(request.url.slice(0,-1));
         console.log(url);
         console.log(url.hash);
@@ -299,8 +315,8 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
             const accessToken = url.hash.slice(14, url.hash.indexOf('&'));
             console.log(accessToken);
             chrome.storage.local.set({ accessToken });
-            fetchTokenIsValid(accessToken);
-            fetchUserID();
+            // fetchTokenIsValid(accessToken);
+            setStoredUserID(await fetchUserID());
         } else if (!url.hash && url.search) {
             console.log(url.search);
         } else {
