@@ -6,7 +6,7 @@ const loginTwitch = document.querySelector('#loginTwitch');
 
 
 window.onload = function() {
-    try{fetchTwitchData();}catch(error){console.log("Please Login");};
+    fetchTwitchData();
 }
 
 
@@ -20,20 +20,10 @@ function onLoginTwitchClick() {
         sendOAuthURL(redirect_url);
     })
     console.log("url sent to background script");
-    try {
-        try {
-            setTimeout(() => {
-                fetchTwitchData();
-            }, 2000);
-        } catch(error) {
-            console.log("Error fetching data, trying again in 10 seconds");
-        }
-        setTimeout(() => {
-            fetchTwitchData();
-        }, 10000);
-    } catch(error) {
-        console.log(error);
-    }
+    loginClicked = true;
+    setTimeout(() => {
+        fetchTwitchData();
+    }, 2000)
 };
 
 loginTwitch.addEventListener('click', onLoginTwitchClick);
@@ -78,7 +68,6 @@ async function fetchTwitchData(){
             
         } else {
             console.log(response);
-            console.error("Error retrieving data from background script");
         }
     });
 };
