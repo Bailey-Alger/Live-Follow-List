@@ -20,11 +20,12 @@ const unFavName = "-";
 async function fetchCombinedList() {
     let followList = await getStoredFollowList();
     console.log(followList);
-    if (!Array.isArray(followList)) {
+
+    console.log(Date.now());
+    var followTime = await getTimeLastFetched('fetchFollowList');
+    if (!Array.isArray(followList) || (followTime === undefined) || ((Date.now() - 60000) > followTime)) {
         followList = await fetchFollowList();
-    } else if ((Date.now() - 60000) > getTimeLastFetched(`fetchFollowList`)) {
-        followList = await fetchFollowList();
-    }; // calls fetchFollowList if it has been more than a minute since the list was last updated
+    };
     
     console.log(followList);
     followList = sortCaseInsensitive(followList || []);
@@ -130,19 +131,6 @@ async function fetchFollowList() {
 // };
 
 async function fetchTokenIsValid(token) {
-    // // this is unstable, change later
-    // if ((Date.now() - 1000) > getTimeLastFetched(`fetchTokenIsValid`)) {
-    //     let response = await fetch("https://id.twitch.tv/oauth2/validate", {
-    //         headers: {
-    //             "Authorization": `OAuth ${token}`
-    //         }
-    //     });
-    //     //const statusCode = response.status;
-    //     const isSuccessful = response.ok;
-    //     setTimeLastFetched('fetchTokenIsValid');
-    //     //console.log(isSuccessful);
-    //     return isSuccessful;
-    // } else { return false };
         let response = await fetch("https://id.twitch.tv/oauth2/validate", {
             headers: {
                 "Authorization": `OAuth ${token}`
@@ -185,6 +173,7 @@ async function getTimeLastFetched(functName) {
     return new Promise((resolve) => {
         chrome.storage.local.get([`${functName}`], (result) => {
             const timeStamp = result.timeStamp;
+            console.log('Time last fetched: ', timeStamp);
             resolve(timeStamp);
         })
     })
@@ -288,6 +277,8 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
     console.log(request);
     if (request === "fetchTwitchData") {
         console.log(await getStoredAccesstoken());
+
+        // ADD TIMER HERE SO IT CANT BE SPAMMED
         if ( await fetchTokenIsValid(await getStoredAccesstoken()) ) {
             // console.log(await fetchTokenIsValid(await getStoredAccesstoken()))
             // console.log(await fetchTokenIsValid("545454"));
