@@ -1,11 +1,18 @@
 const favName = "+";
 const unFavName = "-";
+const extID = chrome.runtime.id;
 const loginTwitch = document.querySelector('#loginTwitch');
 
-// state being wowee might break it
+
+
+window.onload = function() {
+    try{fetchTwitchData();}catch(error){console.log("Please Login");};
+}
+
+
 function onLoginTwitchClick() {
     chrome.identity.launchWebAuthFlow({
-        url: 'https://id.twitch.tv/oauth2/authorize?response_type=token&client_id=pa669by8xti1oag6giphneaeykt6ln&redirect_uri=https%3A%2F%2Fcpoaimdmdpkehkijhkidhdlacmogedel.chromiumapp.org&scope=user%3Aread%3Afollows&state=wowee',
+        url: `https://id.twitch.tv/oauth2/authorize?response_type=token&client_id=pa669by8xti1oag6giphneaeykt6ln&redirect_uri=https%3A%2F%2F${extID}.chromiumapp.org&scope=user%3Aread%3Afollows`,
         interactive: true
     },
     function(redirect_url){
@@ -32,7 +39,6 @@ function onLoginTwitchClick() {
 loginTwitch.addEventListener('click', onLoginTwitchClick);
 
 // console.log(document.location.hash);
-try{fetchTwitchData();}catch(error){console.log("Please Login");};
 
 async function fetchTwitchData(){
     chrome.runtime.sendMessage("fetchTwitchData", async function(response) {
