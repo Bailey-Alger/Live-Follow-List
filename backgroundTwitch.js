@@ -278,8 +278,18 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
     if (request === "fetchTwitchData") {
         console.log(await getStoredAccesstoken());
 
-        // ADD TIMER HERE SO IT CANT BE SPAMMED
-        if ( await fetchTokenIsValid(await getStoredAccesstoken()) ) {
+        // this doesnt feel like the best way to do this but fk it we ball
+        var tokenValidTime = getTimeLastFetched('fetchTokenIsValid');
+        var tokenIsValid;
+        // about a week in milliseconds
+        if ((tokenValidTime === undefined) || ((Date.now() - 600000000) > tokenValidTime)) {
+            tokenIsValid = await fetchTokenIsValid(await getStoredAccesstoken());
+            if (tokenIsValid) {
+                setTimeLastFetched('fetchTokenIsValid')
+            } else { console.log('invalid token') };
+        } else { tokenIsValid = true };
+
+        if ( tokenIsValid ) {
             // console.log(await fetchTokenIsValid(await getStoredAccesstoken()))
             // console.log(await fetchTokenIsValid("545454"));
             const combinedList = await fetchCombinedList();
