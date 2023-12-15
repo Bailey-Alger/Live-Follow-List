@@ -1,21 +1,10 @@
 import { CLIENT_SECRET } from "./config.js";
 
-// var tokenPromise = getStoredAccesstoken();
 const clientID = 'pa669by8xti1oag6giphneaeykt6ln';
 const favName = "+";
 const unFavName = "-";
-// const extID = chrome.runtime.id;
 
-// chrome.identity.launchWebAuthFlow({
-//     url: 'https://id.twitch.tv/oauth2/authorize?response_type=token&client_id=pa669by8xti1oag6giphneaeykt6ln&redirect_uri=https://cpoaimdmdpkehkijhkidhdlacmogedel.chromiumapp.org&scope=user%3Aread%3Afollows',
-//     interactive: true
-// },
-//
-// function(redirect_url){
-//     console.log(redirect_url);
-// });
 
-// FETCHES
 
 async function fetchCombinedList() {
     let followList = await getStoredFollowList();
@@ -40,6 +29,7 @@ async function fetchFollowList() {
     const authToken = await getStoredAccesstoken();
     console.log(ID);
     console.log(authToken);
+    
     // get followlist
     let followList = [];
     let response = await fetch(`https://api.twitch.tv/helix/streams/followed?user_id=${ID}&first=100`, {
@@ -50,14 +40,6 @@ async function fetchFollowList() {
     });
     let data = await response.json();
     console.log(data);
-    // let promises = data.data.map(async (item) => {
-    //     let isLive = await fetchIsLive(item.to_name);
-    //     if (isLive) {
-    //         console.log(item.to_name);
-    //         followList.push(item.to_name);
-    //     };
-    // })
-    // await Promise.all(promises);
     let promises = data.data.map(async (item) => {
         console.log(item.user_name);
         followList.push(item.user_name);
@@ -70,65 +52,7 @@ async function fetchFollowList() {
     return followList;
 };
 
-// async function fetchIsLive(channel) {
-//     let isLive = false;
-//     const authToken = await tokenPromise;
-//     let response = await fetch(encodeURI(`https://api.twitch.tv/helix/search/channels?query=${channel}&first=1`), {
-//         headers: {
-//             "Authorization": `Bearer ${await authToken}`,
-//             "Client-Id": "pa669by8xti1oag6giphneaeykt6ln" 
-//         }
-//     });
-//     let data = await response.json();
-//     console.log(data);
-//     if ((data.data.length > 0) && data.data[0].is_live) {
-//         isLive = true;
-//     };
-//     return isLive;
-// };
 
-// async function fetchOAuth() {
-//     const token = await getStoredOAuth();
-//     console.log(token);
-//     if (await fetchTokenIsValid(token)){
-//         return token;
-//     };
-
-//     let response = await fetch("https://id.twitch.tv/oauth2/token", {
-//         method: "POST",
-//         headers: {
-//             "Content-Type": "application/json"
-//         },
-//         body: JSON.stringify({"client_id": "pa669by8xti1oag6giphneaeykt6ln", "client_secret": CLIENT_SECRET, "grant_type": "client_credentials"})
-//     });
-//     let data = await response.json();
-//     setStoredOAuth(data.access_token);
-//     return data.access_token;
-// };
-
-// async function fetchUserID() {
-//     // Check if userID is stored locally
-//     const userID = await getStoredUserID();
-//     if (userID) {
-//         console.log("User ID found locally.");
-//         return userID;
-//     }
-
-//     // Fetch userID if not stored locally
-//     const authToken = await tokenPromise;
-//     let response = await fetch("https://api.twitch.tv/helix/users?login=tiltzer", {
-//         headers: {
-//             "Authorization": `Bearer ${authToken}`,
-//             "Client-Id": "pa669by8xti1oag6giphneaeykt6ln" 
-//         }
-//     });
-//     let data = await response.json();
-//     const fetchedUserID = data.data[0].id;
-//     // 1st data = promise, 2nd data = array of responses. Likely because this fetch can return multiple responses? Perhaps?
-//     await setStoredUserID(fetchedUserID);
-//     console.log("User ID fetched from Twitch API.");
-//     return fetchedUserID;
-// };
 
 async function fetchTokenIsValid(token) {
     if(!token){return false};
@@ -137,9 +61,7 @@ async function fetchTokenIsValid(token) {
             "Authorization": `OAuth ${token}`
         }
     });
-    //const statusCode = response.status;
     const isSuccessful = response.ok;
-    //console.log(isSuccessful);
     return isSuccessful;
 };
 
@@ -183,7 +105,6 @@ async function getTimeLastFetched(functName) {
 async function getStoredAccesstoken() {
     return new Promise((resolve) => {
         chrome.storage.local.get(["accessToken"], (result) => {
-            // console.log(result.accessToken);
             const accessToken = result.accessToken;
             resolve(accessToken);
         })
@@ -196,20 +117,6 @@ async function getFavorites() {
     return favorites && favorites.favorites ? favorites.favorites : [];
 };
 
-async function addFavorite(favorite) {
-    let favorites = await getFavorites();
-    favorites.push(favorite);
-    await chrome.storage.local.set({favorites});
-};
-
-async function removeFavorite(favorite) {
-    let favorites = await getFavorites();
-    const index = favorites.indexOf(favorite);
-    if (index !== -1) {
-        favorites.splice(index, 1);
-        await chrome.storage.local.set({favorites});
-    }
-};
 
 function getStoredUserID() {
     return new Promise((resolve) => {
@@ -229,22 +136,6 @@ function setStoredUserID(userID) {
     });
 };
 
-// function getStoredOAuth() {
-//     return new Promise((resolve) => {
-//         chrome.storage.local.get(["token"], (result) => {
-//             const token = result.token;
-//             resolve(token || "Missing_Token");
-//         });
-//     });
-// };
-
-// function setStoredOAuth(token) {
-//     return new Promise((resolve) => {
-//         chrome.storage.local.set({ token: token }, () => {
-//             resolve();
-//         });
-//     });
-// };
 
 function getStoredFollowList() {
     return new Promise((resolve) => {
@@ -296,8 +187,6 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
         } else { tokenIsValid = true };
 
         if ( tokenIsValid ) {
-            // console.log(await fetchTokenIsValid(await getStoredAccesstoken()))
-            // console.log(await fetchTokenIsValid("545454"));
             const combinedList = await fetchCombinedList();
             sendResponse({
                 success: true,
@@ -322,7 +211,6 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
             const accessToken = url.hash.slice(14, url.hash.indexOf('&'));
             console.log(accessToken);
             chrome.storage.local.set({ accessToken });
-            // fetchTokenIsValid(accessToken);
             setStoredUserID(await fetchUserID());
         } else if (!url.hash && url.search) {
             console.log(url.search);
