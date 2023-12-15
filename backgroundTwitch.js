@@ -131,11 +131,12 @@ async function fetchFollowList() {
 // };
 
 async function fetchTokenIsValid(token) {
-        let response = await fetch("https://id.twitch.tv/oauth2/validate", {
-            headers: {
-                "Authorization": `OAuth ${token}`
-            }
-        });
+    if(!token){return false};
+    let response = await fetch("https://id.twitch.tv/oauth2/validate", {
+        headers: {
+            "Authorization": `OAuth ${token}`
+        }
+    });
     //const statusCode = response.status;
     const isSuccessful = response.ok;
     //console.log(isSuccessful);
@@ -183,9 +184,6 @@ async function getStoredAccesstoken() {
     return new Promise((resolve) => {
         chrome.storage.local.get(["accessToken"], (result) => {
             // console.log(result.accessToken);
-            if (result.accessToken === undefined){
-                resolve('1234');
-            }
             const accessToken = result.accessToken;
             resolve(accessToken);
         })
@@ -269,7 +267,14 @@ async function setStoredFollowList(followList) {
 
 // LISTENERS
 
-
+chrome.runtime.onStartup.addListener(async function() {
+    storedToken = await getStoredAccesstoken();
+    if ( !(await fetchTokenIsValid(await storedToken)) ) {
+        chrome.storage.local.remove(["fetchTokenIsValid"], function() {
+            console.log("invalid token found in storage, removing validation time.");
+        });
+    } else { return };
+});
 
 chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
 (async function () {
@@ -279,10 +284,11 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
         console.log(await getStoredAccesstoken());
 
         // this doesnt feel like the best way to do this but fk it we ball
-        var tokenValidTime = getTimeLastFetched('fetchTokenIsValid');
+        var tokenValidTime = await getTimeLastFetched('fetchTokenIsValid');
         var tokenIsValid;
         // about a week in milliseconds
-        if ((tokenValidTime === undefined) || ((Date.now() - 600000000) > tokenValidTime)) {
+        if ((!(await tokenValidTime)) || ((Date.now() - 600000000) > tokenValidTime)) {
+            // eventually need to change so it refreshes the token through the twitch api after a week or so
             tokenIsValid = await fetchTokenIsValid(await getStoredAccesstoken());
             if (tokenIsValid) {
                 setTimeLastFetched('fetchTokenIsValid')
@@ -332,6 +338,7 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
 // MISC FUNCTIONS
 
 async function toggleFavorite(favorite) {
+    console.log("toggling favorite");
     const favorites = await getFavorites();
     const index = favorites.indexOf(favorite);
     if (index !== -1) {
