@@ -65,6 +65,13 @@ async function fetchTwitchData(){
             
         } else {
             console.log(response);
+            let twitchList = document.getElementById("twitchList");
+            while (twitchList.firstChild) {
+                twitchList.removeChild(twitchList.firstChild);
+            };
+            let li = document.createElement("li");
+            li.innerText = "Please Login to Twitch";
+            twitchList.appendChild(li);
         }
     });
 };
