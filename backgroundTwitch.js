@@ -17,6 +17,9 @@ async function fetchCombinedList() {
     };
     
     console.log(followList);
+    if (followList == false){
+        return false
+    };
     followList = sortCaseInsensitive(followList || []);
     const favorites = sortCaseInsensitive(await getFavorites()) || [];
 
@@ -38,18 +41,20 @@ async function fetchFollowList() {
             "Client-Id": "pa669by8xti1oag6giphneaeykt6ln" 
         }
     });
-    let data = await response.json();
-    console.log(data);
-    let promises = data.data.map(async (item) => {
-        console.log(item.user_name);
-        followList.push(item.user_name);
-    });
-    await Promise.all(promises);
-    console.log("follow list created");
-    console.log(followList);
-    setStoredFollowList(followList);
-    setTimeLastFetched('fetchFollowList');
-    return followList;
+    if (response.ok){
+        let data = await response.json();
+        console.log(data);
+        let promises = data.data.map(async (item) => {
+            console.log(item.user_name);
+            followList.push(item.user_name);
+        });
+        await Promise.all(promises);
+        console.log("follow list created");
+        console.log(followList);
+        setStoredFollowList(followList);
+        setTimeLastFetched('fetchFollowList');
+        return followList;
+    } else { return false };
 };
 
 
@@ -174,20 +179,19 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
     if (request === "fetchTwitchData") {
         console.log(await getStoredAccesstoken());
 
-        // this doesnt feel like the best way to do this but fk it we ball
+        // this doesnt feel like the best way to do this but w/e we ball
         var tokenValidTime = await getTimeLastFetched('fetchTokenIsValid');
         var tokenIsValid;
-        // about a week in milliseconds
-        if ((!(await tokenValidTime)) || ((Date.now() - 600000000) > tokenValidTime)) {
-            // eventually need to change so it refreshes the token through the twitch api after a week or so
+        if (!(await tokenValidTime)) {
             tokenIsValid = await fetchTokenIsValid(await getStoredAccesstoken());
-            if (tokenIsValid) {
-                setTimeLastFetched('fetchTokenIsValid')
-            } else { console.log('invalid token') };
         } else { tokenIsValid = true };
-
         if ( tokenIsValid ) {
             const combinedList = await fetchCombinedList();
+            if (combinedList == false) {
+                sendResponse({
+                    success: false
+                });
+            };
             sendResponse({
                 success: true,
                 followList: combinedList
