@@ -5,7 +5,7 @@ const favName = "+";
 const unFavName = "-";
 
 
-
+// should rename as this isnt fetching anything, fetchFollowList is
 async function fetchCombinedList() {
     let followList = await getStoredFollowList();
     console.log(followList);
@@ -164,7 +164,7 @@ async function setStoredFollowList(followList) {
 // LISTENERS
 
 chrome.runtime.onStartup.addListener(async function() {
-    storedToken = await getStoredAccesstoken();
+    let storedToken = await getStoredAccesstoken();
     if ( !(await fetchTokenIsValid(await storedToken)) ) {
         chrome.storage.local.remove(["fetchTokenIsValid"], function() {
             console.log("invalid token found in storage, removing validation time.");
