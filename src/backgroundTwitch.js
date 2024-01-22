@@ -1,4 +1,4 @@
-import { CLIENT_SECRET } from "./config.js";
+import { CLIENT_SECRET } from "../config.js";
 
 const clientID = 'pa669by8xti1oag6giphneaeykt6ln';
 const favName = "+";
