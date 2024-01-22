@@ -107,4 +107,15 @@ function sortCaseInsensitive(arr) {
     );
 }
 
-const handleClick = (MouseEvent) => toggleFavorite(item, favoriteButton);
+function Popup() {
+    return (
+        <>
+            <ol>
+                {followList.map((item) => (
+                    <li key={item}>{item.slice(0, -1)}</li>
+                ))}
+            </ol>
+        </>
+    );
+}
+export default Popup;
