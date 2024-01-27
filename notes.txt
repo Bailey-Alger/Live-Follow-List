@@ -11,3 +11,8 @@ change all_urls to the only the URLs the extension will run.
 http-server starts a local server at 8080
 
 TODO: BABY PROOF, ORGANIZE, START YOUTUBE LIST?, MAKE NEWLY LIVE CHANNELS HIGHLIGHTED?, MAKE INTO SPA WHEN ADDING YOUTUBE, REACT?
+
+React structure:
+    popup.jsx --- App.jsx  --- Twitch UI Component --- Other Components
+                          |--- Youtube UI Component
+                          |--- Kick UI Component

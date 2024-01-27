@@ -1,9 +1,3 @@
-import { useState } from "react";
-import reactLogo from "./assets/react.svg";
-import viteLogo from "/vite.svg";
-import "../index.css";
-import { MouseEvent } from "react";
-
 const favName = "+";
 const unFavName = "-";
 const extID = chrome.runtime.id;
@@ -107,15 +101,4 @@ function sortCaseInsensitive(arr) {
     );
 }
 
-function Popup() {
-    return (
-        <>
-            <ol>
-                {followList.map((item) => (
-                    <li key={item}>{item.slice(0, -1)}</li>
-                ))}
-            </ol>
-        </>
-    );
-}
-export default Popup;
+

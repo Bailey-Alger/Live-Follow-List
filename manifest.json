@@ -22,7 +22,7 @@
         "default_popup": "popup.html"
       },
     "background": {
-        "service_worker": "backgroundTwitch.js",
+        "service_worker": "src/backgroundTwitch.js",
         "type": "module"
     },
     "web_accessible_resources": [
