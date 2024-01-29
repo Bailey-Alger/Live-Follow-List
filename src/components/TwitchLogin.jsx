@@ -1,3 +1,5 @@
+const extID = chrome.runtime.id;
+
 function sendOAuthURL(url) {
     chrome.runtime.sendMessage({ type: "OAuthURL", url });
 }
