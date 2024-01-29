@@ -1,3 +1,7 @@
+function sendOAuthURL(url) {
+    chrome.runtime.sendMessage({ type: "OAuthURL", url });
+}
+
 function TwitchLogin() {
     return (
         <>
