@@ -77,11 +77,11 @@ function toggleFavorite(item, favoriteButton) {
         { type: "toggleFavorite", favorite: item },
         function (response) {
             if (response && response.success) {
-                if (favoriteButton.innerText === favName) {
-                    favoriteButton.innerText = unFavName;
-                } else {
-                    favoriteButton.innerText = favName;
-                }
+                // if (favoriteButton.innerText === favName) {
+                //     favoriteButton.innerText = unFavName;
+                // } else {
+                //     favoriteButton.innerText = favName;
+                // }
                 console.log("Favorite toggled");
                 fetchTwitchData();
             } else {
