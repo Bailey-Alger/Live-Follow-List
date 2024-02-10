@@ -20,10 +20,23 @@ async function fetchCombinedList() {
     if (followList == false){
         return false
     };
-    followList = sortCaseInsensitive(followList || []);
-    const favorites = sortCaseInsensitive(await getFavorites()) || [];
+    followList = sortCaseInsensitive(followList || [], "twitch");
+    const favorites = sortCaseInsensitive(await getFavorites(), "favorites") || [];
 
-    return [...favorites.filter(item => followList.includes(item)).map(item => item + unFavName), ...followList.filter(item => !favorites.includes(item)).map(item => item + favName)];
+    followList.forEach(obj => {
+        obj.isFavorite = favorites.includes(obj.user_name) ? true : false;
+    });
+
+    followList.sort((a, b) => {
+        if (a.isFavorite === b.isFavorite) {
+            return a.user_name.localeCompare(b.user_name);
+        }
+        return b.isFavorite ? 1 : -1;
+    })
+
+    return followList;
+
+    // return [...favorites.filter(item => followList.includes(item)).map(item => item + unFavName), ...followList.filter(item => !favorites.includes(item)).map(item => item + favName)];
 };
 
 async function fetchFollowList() {
@@ -45,8 +58,8 @@ async function fetchFollowList() {
         let data = await response.json();
         console.log(data);
         let promises = data.data.map(async (item) => {
-            console.log(item.user_name);
-            followList.push(item.user_name);
+            console.log(item);
+            followList.push(item);
         });
         await Promise.all(promises);
         console.log("follow list created");
@@ -242,7 +255,11 @@ async function toggleFavorite(favorite) {
     return await fetchCombinedList();
 }
 
-function sortCaseInsensitive(arr) {
+function sortCaseInsensitive(arr, type) {
     console.log("Sorting: ", arr);
-    return arr.sort((a, b) => a.localeCompare(b, undefined, { sensitivity: 'base' }));
+    if (type == "twitch") {
+        return arr.sort((a, b) => a.user_name.localeCompare(b.user_name, undefined, { sensitivity: 'base' }));
+    } else {
+        return arr.sort((a, b) => a.localeCompare(b, undefined, { sensitivity: 'base' }))
+    };
 };

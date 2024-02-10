@@ -44,10 +44,10 @@ async function fetchTwitchData() {
 
             followList.forEach((item) => {
                 let li = document.createElement("li");
-                li.innerText = item.slice(0, -1);
+                li.innerText = item.user_name;
                 if (li.querySelector("button") == null) {
                     let favoriteButton = document.createElement("button");
-                    if (item[item.length - 1] == "-") {
+                    if (item.isFavorite) {
                         favoriteButton.innerText = unFavName;
                     } else {
                         favoriteButton.innerText = favName;
