@@ -21,9 +21,6 @@ function TwitchLogin() {
                     );
                     console.log("url sent to background script");
                     loginClicked = true;
-                    setTimeout(() => {
-                        fetchTwitchData();
-                    }, 2000);
                 }}
             >
                 Login with Twitch
@@ -31,5 +28,6 @@ function TwitchLogin() {
         </>
     );
 }
+// make signout button?
 
 export default TwitchLogin;
