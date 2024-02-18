@@ -19,7 +19,7 @@ async function toggleFav(item) {
             if (response && response.success) {
                 console.log("favorite toggled");
             } else {
-                console.error("Error toggline favorite");
+                console.error("Error toggling favorite");
             }
         }
     );
@@ -52,18 +52,19 @@ function TwitchFollowList() {
         return <div>Error: {error.message}</div>;
     }
 
+    // togglefav might need the item.user_name vvv
     return (
         <div>
             <ol>
                 {data.map((item) => (
-                    <li key={item}>
-                        {item}{" "}
+                    <li key={item.user_name}>
+                        {item.user_name}{" "}
                         <button
                             onClick={() => {
                                 toggleFav();
                             }}
                         >
-                            {item.isFav ? "-" : "+"}
+                            {item.isFavorite ? "-" : "+"}
                         </button>
                     </li>
                 ))}
