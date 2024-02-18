@@ -21,6 +21,7 @@ async function fetchCombinedList() {
         return false
     };
     followList = sortCaseInsensitive(followList || [], "twitch");
+    // probably dont need to sort favs here anymore?
     const favorites = sortCaseInsensitive(await getFavorites(), "favorites") || [];
 
     followList.forEach(obj => {
@@ -215,7 +216,7 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
             });
         }
     } else if (await request.type === "toggleFavorite") {
-        const favorite = request.favorite.slice(0, -1);
+        const favorite = request.favorite;
         console.log(favorite);
         const combinedList = await toggleFavorite(favorite);
         sendResponse({success: true, combinedList});

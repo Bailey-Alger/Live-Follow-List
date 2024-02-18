@@ -53,7 +53,7 @@ async function fetchTwitchData() {
                         favoriteButton.innerText = favName;
                     }
                     favoriteButton.addEventListener("click", function () {
-                        toggleFavorite(item, favoriteButton);
+                        toggleFavorite(item.user_name, favoriteButton);
                     });
                     li.appendChild(favoriteButton);
                 }
