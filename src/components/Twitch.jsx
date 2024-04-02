@@ -1,5 +1,5 @@
-import TwitchFollowList from "./TwitchFollowList";
-import TwitchLogin from "./TwitchLogin";
+import TwitchFollowList from "TwitchFollowList";
+import TwitchLogin from "TwitchLogin";
 
 function Twitch() {
     return (

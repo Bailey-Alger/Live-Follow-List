@@ -9,6 +9,7 @@
         "http://localhost/*"
     ],
     "permissions": [
+        "scripting",
         "storage",
         "identity",
         "tabs",
@@ -21,6 +22,12 @@
     "action": {
         "default_popup": "popup.html"
       },
+    "content_scripts": [
+        {
+            "matches": ["<all_urls>"],
+            "js": ["src/components/TwitchFollowList.jsx", "src/components/TwitchLogin.jsx"]
+        }
+    ],
     "background": {
         "service_worker": "src/backgroundTwitch.js",
         "type": "module"

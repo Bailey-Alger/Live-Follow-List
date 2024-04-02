@@ -1,3 +1,11 @@
+import Twitch from "./components/Twitch";
+
 function App() {
-    return <></>;
+    return (
+        <>
+            <Twitch />
+        </>
+    );
 }
+
+export default App;

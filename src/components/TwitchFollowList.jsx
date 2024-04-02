@@ -61,7 +61,7 @@ function TwitchFollowList() {
                         {item.user_name}{" "}
                         <button
                             onClick={() => {
-                                toggleFav();
+                                toggleFav(item);
                             }}
                         >
                             {item.isFavorite ? "-" : "+"}

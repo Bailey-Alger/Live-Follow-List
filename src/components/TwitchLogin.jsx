@@ -1,3 +1,5 @@
+import { useState } from "react";
+
 const extID = chrome.runtime.id;
 
 function sendOAuthURL(url) {
@@ -5,6 +7,7 @@ function sendOAuthURL(url) {
 }
 
 function TwitchLogin() {
+    const [loginClicked, setLoginClicked] = useState(false);
     return (
         <>
             <button
@@ -20,7 +23,7 @@ function TwitchLogin() {
                         }
                     );
                     console.log("url sent to background script");
-                    loginClicked = true;
+                    setLoginClicked(true);
                 }}
             >
                 Login with Twitch
