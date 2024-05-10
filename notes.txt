@@ -16,3 +16,17 @@ React structure:
     popup.jsx --- App.jsx  --- Twitch UI Component --- Other Components
                           |--- Youtube UI Component
                           |--- Kick UI Component
+
+Have to load unpacked from dist, manifest stays in public
+
+cannot get these to work, test app works without them somehow but doesnt have a background script
+    "content_scripts": [
+        {
+            "matches": ["<all_urls>"],
+            "js": ["src/components/TwitchFollowList.jsx", "src/components/TwitchLogin.jsx"]
+        }
+    ],
+    "background": {
+        "service_worker": "src/backgroundTwitch.js",
+        "type": "module"
+    },
