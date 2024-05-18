@@ -1,14 +1,17 @@
 import { useEffect, useState } from "react";
 
 async function twitchDataFetcher() {
-    chrome.runtime.sendMessage("fetchTwitchData", async function (response) {
-        if (response && response.followList) {
-            console.log("response successful");
-            console.log(response.followList);
-            return response.followList;
-        } else {
-            console.log(response);
-        }
+    return new Promise((resolve, reject) => {
+        chrome.runtime.sendMessage("fetchTwitchData", function (response) {
+            if (response && response.followList) {
+                console.log("response successful");
+                console.log(response.followList);
+                resolve(response.followList);
+            } else {
+                console.log(response);
+                reject(new Error("Failed to fetch Twitch data"));
+            }
+        });
     });
 }
 
@@ -30,24 +33,23 @@ function TwitchFollowList() {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
 
-    useEffect(() => {
-        async function fetchData() {
-            try {
-                const data = await twitchDataFetcher();
-                setData(data);
-                setLoading(false);
-                console.log(data);
-                if (data == undefined) {
-                    throw new Error(
-                        "failed to fetch data from twitchDataFetcher"
-                    );
-                }
-            } catch (error) {
-                setError(error);
-                setLoading(false);
+    async function fetchData() {
+        try {
+            const data = await twitchDataFetcher();
+            console.log("37", data);
+            if (data == undefined || false) {
+                throw new Error("failed to fetch data from twitchDataFetcher");
             }
+            setData(data);
+            setLoading(false);
+            console.log("data at twitchFollowList:", data);
+        } catch (error) {
+            setError(error);
+            setLoading(false);
         }
+    }
 
+    useEffect(() => {
         fetchData();
     }, []);
     if (loading) {
@@ -68,6 +70,7 @@ function TwitchFollowList() {
                         <button
                             onClick={() => {
                                 toggleFav(item.user_name);
+                                fetchData();
                             }}
                         >
                             {item.isFavorite ? "-" : "+"}
