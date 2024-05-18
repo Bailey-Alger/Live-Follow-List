@@ -36,6 +36,12 @@ function TwitchFollowList() {
                 const data = await twitchDataFetcher();
                 setData(data);
                 setLoading(false);
+                console.log(data);
+                if (data == undefined) {
+                    throw new Error(
+                        "failed to fetch data from twitchDataFetcher"
+                    );
+                }
             } catch (error) {
                 setError(error);
                 setLoading(false);
@@ -61,7 +67,7 @@ function TwitchFollowList() {
                         {item.user_name}{" "}
                         <button
                             onClick={() => {
-                                toggleFav(item);
+                                toggleFav(item.user_name);
                             }}
                         >
                             {item.isFavorite ? "-" : "+"}

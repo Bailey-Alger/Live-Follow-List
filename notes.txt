@@ -30,3 +30,5 @@ cannot get these to work, test app works without them somehow but doesnt have a 
         "service_worker": "src/backgroundTwitch.js",
         "type": "module"
     },
+
+    webpack knowledge is def the problem, todo: research webpacks

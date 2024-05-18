@@ -3,7 +3,7 @@ import { CLIENT_SECRET } from "../config.js";
 const clientID = 'pa669by8xti1oag6giphneaeykt6ln';
 const favName = "+";
 const unFavName = "-";
-
+console.log("background script running.");
 
 // should rename as this isnt fetching anything, fetchFollowList is
 async function fetchCombinedList() {

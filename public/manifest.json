@@ -22,6 +22,10 @@
     "action": {
         "default_popup": "popup.html"
       },
+      "background": {
+        "service_worker": "assets/background.js",
+        "type": "module"
+    },
     "web_accessible_resources": [
         {
             "resources": ["index.css"],
