@@ -3,6 +3,7 @@ import { CLIENT_SECRET } from "../config.js";
 const clientID = 'pa669by8xti1oag6giphneaeykt6ln';
 const favName = "+";
 const unFavName = "-";
+const extID = chrome.runtime.id;
 console.log("background script running.");
 
 // should rename as this isnt fetching anything, fetchFollowList is
@@ -12,6 +13,7 @@ async function fetchCombinedList() {
 
     console.log(Date.now());
     var followTime = await getTimeLastFetched('fetchFollowList');
+    console.log("follow time:", followTime);
     if (!Array.isArray(followList) || (followTime === undefined) || ((Date.now() - 60000) > followTime)) {
         followList = await fetchFollowList();
     };
@@ -81,6 +83,9 @@ async function fetchTokenIsValid(token) {
         }
     });
     const isSuccessful = response.ok;
+    if (isSuccessful) {
+        setTimeLastFetched('fetchTokenIsValid');
+    }
     return isSuccessful;
 };
 
@@ -114,8 +119,8 @@ async function setTimeLastFetched(functName) {
 async function getTimeLastFetched(functName) {
     return new Promise((resolve) => {
         chrome.storage.local.get([`${functName}`], (result) => {
-            const timeStamp = result.timeStamp;
-            console.log('Time last fetched: ', timeStamp);
+            const timeStamp = result[functName];
+            console.log('Time last fetched for', functName, timeStamp);
             resolve(timeStamp);
         })
     })
@@ -188,17 +193,19 @@ chrome.runtime.onStartup.addListener(async function() {
 
 chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
 (async function () {
-    console.log("message recieved: ");
-    console.log(request);
+    console.log("message recieved: ", request);
     if (request === "fetchTwitchData") {
         console.log(await getStoredAccesstoken());
 
         // this doesnt feel like the best way to do this but w/e we ball
         var tokenValidTime = await getTimeLastFetched('fetchTokenIsValid');
         var tokenIsValid;
+        console.log("tokenValidTime:", tokenValidTime);
         if (!(await tokenValidTime)) {
             tokenIsValid = await fetchTokenIsValid(await getStoredAccesstoken());
+
         } else { tokenIsValid = true };
+        console.log("token valid?", tokenIsValid);
         if ( tokenIsValid ) {
             const combinedList = await fetchCombinedList();
             if (combinedList == false) {
