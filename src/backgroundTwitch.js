@@ -1,9 +1,9 @@
 import { CLIENT_SECRET } from "../config.js";
 
 const clientID = 'pa669by8xti1oag6giphneaeykt6ln';
-const favName = "+";
-const unFavName = "-";
-const extID = chrome.runtime.id;
+// const favName = "+";
+// const unFavName = "-";
+// const extID = chrome.runtime.id;
 console.log("background script running.");
 
 // should rename as this isnt fetching anything, fetchFollowList is
