@@ -18,10 +18,12 @@ function App() {
 
             <Routes>
                 <Route path="/" element={<Twitch />} />
+                <Route path="popup.html" element={<Twitch />} />
                 <Route path="/settings" element={<Settings />} />
             </Routes>
         </>
     );
 }
+// not sure if popup.html is the best way to route this by default
 
 export default App;
