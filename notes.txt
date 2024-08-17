@@ -19,3 +19,11 @@ React structure:
 
 Have to load unpacked from dist, manifest stays in public
 
+
+
+Youtube
+    'Subscriptions: list' api
+    snippet -> resource id -> channel id
+    
+
+fix ReferenceError: chrome is not defined

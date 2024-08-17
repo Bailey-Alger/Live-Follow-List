@@ -1,3 +1,4 @@
+    /* global chrome */
 import { CLIENT_SECRET } from "../config.js";
 
 const clientID = 'pa669by8xti1oag6giphneaeykt6ln';
@@ -76,6 +77,8 @@ async function fetchFollowList() {
 
 
 async function fetchTokenIsValid(token) {
+    try {
+
     if(!token){return false};
     let response = await fetch("https://id.twitch.tv/oauth2/validate", {
         headers: {
@@ -85,8 +88,14 @@ async function fetchTokenIsValid(token) {
     const isSuccessful = response.ok;
     if (isSuccessful) {
         setTimeLastFetched('fetchTokenIsValid');
+    } else {
+        console.log(response.status);
     }
-    return isSuccessful;
+    } catch (error) {
+        console.error(error);
+    } finally {
+        return isSuccessful;
+    }
 };
 
 async function fetchUserID() {
