@@ -1,20 +1,14 @@
-global.chrome = {
-    runtime: {
-        onStartup: {
-            addListener: jest.fn(),
-        },
-        sendMessage: jest.fn(),
-        onMessage: {
-            addListener: jest.fn(),
-        },
-    },
-};
-
+import chrome from 'sinon-chrome';
+import browser from 'sinon-chrome';
 import { fetchTokenIsValid } from "../src/backgroundTwitch.js";
 
+describe('your test', () => {
+  beforeAll(() => {
+    global.chrome = chrome
+    global.browser = browser
+  })
 
-
-test('handles a 404', async ()=> {
+  it('handles a 404', async ()=> {
     global.fetch = jest.fn (() =>
         Promise.resolve({
             json: () => Promise.resolve({ status: 404 }),
@@ -24,4 +18,12 @@ test('handles a 404', async ()=> {
 
     const result = await fetchTokenIsValid("123")
     expect(result).toBe(false);
-}) 
+  })
+
+  afterAll(() => {
+    chrome.flush()
+    browser.flush()
+  })
+})
+
+
