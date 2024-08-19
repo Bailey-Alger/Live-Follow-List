@@ -5,7 +5,7 @@ const clientID = 'pa669by8xti1oag6giphneaeykt6ln';
 // const favName = "+";
 // const unFavName = "-";
 // const extID = chrome.runtime.id;
-console.log("background script running.");
+// console.log("background script running.");
 
 // should rename as this isnt fetching anything, fetchFollowList is
 async function fetchCombinedList() {
@@ -77,20 +77,21 @@ async function fetchFollowList() {
 
 
 async function fetchTokenIsValid(token) {
-    try {
-
-    if(!token){return false};
-    let response = await fetch("https://id.twitch.tv/oauth2/validate", {
-        headers: {
-            "Authorization": `OAuth ${token}`
+    let isSuccessful = false;
+    try { 
+        if(!token){return false};
+        let response = await fetch("https://id.twitch.tv/oauth2/validate", {
+            headers: {
+                "Authorization": `OAuth ${token}`
+            }
+        });
+        console.log(response);
+        isSuccessful = (response.status == 200)
+        if (isSuccessful) {
+            setTimeLastFetched('fetchTokenIsValid');
+        } else {
+            console.log(response.status);
         }
-    });
-    const isSuccessful = response.ok;
-    if (isSuccessful) {
-        setTimeLastFetched('fetchTokenIsValid');
-    } else {
-        console.log(response.status);
-    }
     } catch (error) {
         console.error(error);
     } finally {
@@ -200,7 +201,7 @@ try {
         } else { return };
     });
 } catch(err) {
-    console.log(err);
+    // console.log(err);
 };
 
 try {
@@ -260,7 +261,7 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
         return true; // indicates that we will send the response asynchronously
 });
 } catch(err) {
-    console.log(err);
+    // console.log(err);
 };
 
 // MISC FUNCTIONS
@@ -286,3 +287,5 @@ function sortCaseInsensitive(arr, type) {
         return arr.sort((a, b) => a.localeCompare(b, undefined, { sensitivity: 'base' }))
     };
 };
+
+export {fetchTokenIsValid};

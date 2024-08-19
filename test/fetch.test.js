@@ -11,7 +11,9 @@ describe('your test', () => {
   it('handles a 404', async ()=> {
     global.fetch = jest.fn (() =>
         Promise.resolve({
-            json: () => Promise.resolve({ status: 404 }),
+            ok: false,
+            status: 404,
+            json: () => Promise.resolve({ message: 'dunno' }),
         })
     );
 
