@@ -27,3 +27,5 @@ Youtube
     
 
 fix ReferenceError: chrome is not defined
+
+might need onInstalled listener to ask the user to restart chrome so onStartup can work

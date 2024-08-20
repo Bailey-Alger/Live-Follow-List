@@ -1,4 +1,4 @@
-    /* global chrome */
+/* global chrome */
 import { CLIENT_SECRET } from "../config.js";
 
 const clientID = 'pa669by8xti1oag6giphneaeykt6ln';
@@ -191,20 +191,17 @@ async function setStoredFollowList(followList) {
 
 
 // LISTENERS
-try {
-    chrome.runtime.onStartup.addListener(async function() {
-        let storedToken = await getStoredAccesstoken();
-        if ( !(await fetchTokenIsValid(await storedToken)) ) {
-            chrome.storage.local.remove(["fetchTokenIsValid"], function() {
-                console.log("invalid token found in storage, removing validation time.");
-            });
-        } else { return };
-    });
-} catch(err) {
-    // console.log(err);
-};
 
-try {
+chrome.runtime.onStartup.addListener(async function() {
+    let storedToken = await getStoredAccesstoken();
+    if ( !(await fetchTokenIsValid(await storedToken)) ) {
+        chrome.storage.local.remove(["fetchTokenIsValid"], function() {
+            console.log("invalid token found in storage, removing validation time.");
+        });
+    } else { return };
+});
+
+
 chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
 (async function () {
     console.log("message recieved: ", request);
@@ -260,9 +257,7 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
 })();
         return true; // indicates that we will send the response asynchronously
 });
-} catch(err) {
-    // console.log(err);
-};
+
 
 // MISC FUNCTIONS
 
