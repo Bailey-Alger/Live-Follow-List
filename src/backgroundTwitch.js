@@ -46,7 +46,7 @@ async function fetchCombinedList() {
 async function fetchFollowList() {
     console.log("Fetching follow list from twitch api.");
     const ID = await getStoredUserID();
-    const authToken = await getStoredAccesstoken();
+    const authToken = await getStoredAccessToken();
     console.log(ID);
     console.log(authToken);
     
@@ -102,7 +102,7 @@ async function fetchTokenIsValid(token) {
 async function fetchUserID() {
     let response = await fetch("https://api.twitch.tv/helix/users", {
         headers: {
-            "Authorization": `Bearer ${await getStoredAccesstoken()}`,
+            "Authorization": `Bearer ${await getStoredAccessToken()}`,
             "Client-ID": `${clientID}`
         }
     });
@@ -136,7 +136,7 @@ async function getTimeLastFetched(functName) {
     })
 }
 
-async function getStoredAccesstoken() {
+async function getStoredAccessToken() {
     return new Promise((resolve) => {
         chrome.storage.local.get(["accessToken"], (result) => {
             const accessToken = result.accessToken;
@@ -193,7 +193,7 @@ async function setStoredFollowList(followList) {
 // LISTENERS
 
 chrome.runtime.onStartup.addListener(async function() {
-    let storedToken = await getStoredAccesstoken();
+    let storedToken = await getStoredAccessToken();
     if ( !(await fetchTokenIsValid(await storedToken)) ) {
         chrome.storage.local.remove(["fetchTokenIsValid"], function() {
             console.log("invalid token found in storage, removing validation time.");
@@ -206,14 +206,14 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
 (async function () {
     console.log("message recieved: ", request);
     if (request === "fetchTwitchData") {
-        console.log(await getStoredAccesstoken());
+        console.log(await getStoredAccessToken());
 
         // this doesnt feel like the best way to do this but w/e we ball
         var tokenValidTime = await getTimeLastFetched('fetchTokenIsValid');
         var tokenIsValid;
         console.log("tokenValidTime:", tokenValidTime);
         if (!(await tokenValidTime)) {
-            tokenIsValid = await fetchTokenIsValid(await getStoredAccesstoken());
+            tokenIsValid = await fetchTokenIsValid(await getStoredAccessToken());
 
         } else { tokenIsValid = true };
         console.log("token valid?", tokenIsValid);

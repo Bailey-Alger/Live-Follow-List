@@ -1,6 +1,4 @@
 import chrome from 'sinon-chrome';
-import browser from 'sinon-chrome';
-// import { fetchTokenIsValid } from "../src/backgroundTwitch.js";
 
 beforeAll(() => {
     global.chrome = chrome
@@ -31,7 +29,6 @@ describe('your test', () => {
 
     afterAll(() => {
         chrome.flush()
-        browser.flush()
     })
 })
 
