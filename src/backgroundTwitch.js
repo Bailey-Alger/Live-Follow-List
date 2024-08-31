@@ -15,6 +15,7 @@ async function fetchCombinedList() {
     console.log(Date.now());
     var followTime = await getTimeLastFetched('fetchFollowList');
     console.log("follow time:", followTime);
+    // if the array doesn't exist or it's been a minute, fetch an updated follow list
     if (!Array.isArray(followList) || (followTime === undefined) || ((Date.now() - 60000) > followTime)) {
         followList = await fetchFollowList();
     };
@@ -192,6 +193,8 @@ async function setStoredFollowList(followList) {
 
 // LISTENERS
 
+// if token is invalid what will break?
+// Removes invalid token timer on startup
 chrome.runtime.onStartup.addListener(async function() {
     let storedToken = await getStoredAccessToken();
     if ( !(await fetchTokenIsValid(await storedToken)) ) {
@@ -201,14 +204,24 @@ chrome.runtime.onStartup.addListener(async function() {
     } else { return };
 });
 
+async function tokenValidator() {
+    let tokenIsValid;
+    let token = await getStoredAccessToken();
+    if (token) {
+        tokenIsValid = await fetchTokenIsValid(await token);
+    } else { tokenIsValid = false };
+    console.log("token valid?", tokenIsValid);
+    return tokenIsValid;
+};
 
 chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
 (async function () {
     console.log("message recieved: ", request);
     if (request === "fetchTwitchData") {
-        console.log(await getStoredAccessToken());
+        // console.log(await getStoredAccessToken());
 
         // this doesnt feel like the best way to do this but w/e we ball
+        // token should be validated before use by the function using it
         var tokenValidTime = await getTimeLastFetched('fetchTokenIsValid');
         var tokenIsValid;
         console.log("tokenValidTime:", tokenValidTime);

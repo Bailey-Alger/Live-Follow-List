@@ -6,6 +6,7 @@ function sendOAuthURL(url) {
     chrome.runtime.sendMessage({ type: "OAuthURL", url });
 }
 
+// implicit grant flow
 function TwitchLogin() {
     const [loginClicked, setLoginClicked] = useState(false);
     return (
