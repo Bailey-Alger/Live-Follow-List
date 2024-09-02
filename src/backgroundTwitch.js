@@ -2,13 +2,10 @@
 import { CLIENT_SECRET } from "../config.js";
 
 const clientID = 'pa669by8xti1oag6giphneaeykt6ln';
-// const favName = "+";
-// const unFavName = "-";
 // const extID = chrome.runtime.id;
 // console.log("background script running.");
 
-// should rename as this isnt fetching anything, fetchFollowList is
-async function fetchCombinedList() {
+async function finalFollowList() {
     let followList = await getStoredFollowList();
     console.log(followList);
 
@@ -21,7 +18,7 @@ async function fetchCombinedList() {
     };
     
     console.log(followList);
-    if (followList == false){
+    if (!followList){
         return false
     };
     followList = sortCaseInsensitive(followList || [], "twitch");
@@ -40,8 +37,6 @@ async function fetchCombinedList() {
     })
 
     return followList;
-
-    // return [...favorites.filter(item => followList.includes(item)).map(item => item + unFavName), ...followList.filter(item => !favorites.includes(item)).map(item => item + favName)];
 };
 
 async function fetchFollowList() {
@@ -50,6 +45,10 @@ async function fetchFollowList() {
     const authToken = await getStoredAccessToken();
     console.log(ID);
     console.log(authToken);
+    let tokenIsValid = tokenValidator();
+    if (tokenIsValid == false) {
+        return false;
+    };
     
     // get followlist
     let followList = [];
@@ -204,7 +203,6 @@ chrome.runtime.onStartup.addListener(async function() {
     } else { return };
 });
 
-// replace below logic with this
 async function tokenValidator() {
     let tokenIsValid;
     let token = await getStoredAccessToken();
@@ -219,27 +217,18 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
 (async function () {
     console.log("message recieved: ", request);
     if (request === "fetchTwitchData") {
-        // console.log(await getStoredAccessToken());
-
-        // this doesnt feel like the best way to do this but w/e we ball
-        // token should be validated before use by the function using it
-        let tokenIsValid = await tokenValidator();
-        if ( tokenIsValid ) {
-            const combinedList = await fetchCombinedList();
-            if (combinedList == false) {
-                sendResponse({
-                    success: false
-                });
-            };
+        const followList = await finalFollowList();
+        if (followList) {
             sendResponse({
                 success: true,
-                followList: combinedList
+                followList: followList
             });
         } else {
             sendResponse({
                 success: false
             });
-        }
+        };
+
     } else if (await request.type === "toggleFavorite") {
         const favorite = request.favorite;
         console.log(favorite);
@@ -278,7 +267,7 @@ async function toggleFavorite(favorite) {
         favorites.push(favorite);
     }
     await chrome.storage.local.set({ favorites });
-    return await fetchCombinedList();
+    return await finalFollowList();
 }
 
 function sortCaseInsensitive(arr, type) {
