@@ -82,9 +82,9 @@ async function fetchUserID() {
 
 async function finalFollowList() {
     let followList = await getStoredFollowList();
-    console.log(followList);
+    // console.log(followList);
 
-    console.log(Date.now());
+    // console.log(Date.now());
     var followTime = await getTimeLastFetched('fetchFollowList');
     console.log("follow time:", followTime);
     // if the array doesn't exist or it's been a minute, fetch an updated follow list
@@ -92,12 +92,13 @@ async function finalFollowList() {
         followList = await fetchFollowList();
     };
     
-    console.log(followList);
+    // console.log(followList);
     if (!followList){
-        return false
+        return false;
     };
-    
-    followList = favListCombiner(followList);
+
+    const favList = await getFavorites();
+    followList = await favListCombiner(followList, await favList);
 
     return followList;
 };
@@ -107,7 +108,7 @@ async function finalFollowList() {
 async function setTimeLastFetched(functName) {
     return new Promise((resolve) => {
         chrome.storage.local.set({ [`${functName}`]: Date.now() }, () => {
-            console.log(`Time set for ${functName}`);
+            // console.log(`Time set for ${functName}`);
             resolve();
         });
     });
@@ -117,7 +118,7 @@ async function getTimeLastFetched(functName) {
     return new Promise((resolve) => {
         chrome.storage.local.get([`${functName}`], (result) => {
             const timeStamp = result[functName];
-            console.log('Time last fetched for', functName, timeStamp);
+            // console.log('Time last fetched for', functName, timeStamp);
             resolve(timeStamp);
         })
     })
@@ -134,7 +135,7 @@ async function getStoredAccessToken() {
 
 async function getFavorites() {
     const favorites = await new Promise(resolve => chrome.storage.local.get(['favorites'], resolve));
-    console.log(await favorites);
+    // console.log(await favorites);
     return favorites && favorites.favorites ? favorites.favorites : [];
 };
 
@@ -151,7 +152,7 @@ function getStoredUserID() {
 function setStoredUserID(userID) {
     return new Promise((resolve) => {
         chrome.storage.local.set({ userID: userID }, () => {
-            console.log("user ID stored.");
+            // console.log("user ID stored.");
             resolve();
         });
     });
@@ -234,22 +235,22 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
 
 // MISC FUNCTIONS
 
-async function favListCombiner(followList) {
-    let combinedList = sortCaseInsensitive(followList || [], "twitch");
-    const favList = sortCaseInsensitive(await getFavorites(), "favorites") || [];
+async function favListCombiner(followList, favList) {
+    followList = sortCaseInsensitive(followList || [], "twitch");
+    favList = sortCaseInsensitive(favList, "favorites") || [];
 
-    combinedList.forEach(obj => {
+    followList.forEach(obj => {
         obj.isFavorite = favList.includes(obj.user_name);
     });
 
-    combinedList.sort((a, b) => {
+    followList.sort((a, b) => {
         if (a.isFavorite === b.isFavorite) {
             return a.user_name.localeCompare(b.user_name);
         }
         return b.isFavorite ? 1 : -1;
     });
 
-    return combinedList;
+    return followList;
 };
 
 
