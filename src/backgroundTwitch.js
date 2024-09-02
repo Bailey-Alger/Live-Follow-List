@@ -204,6 +204,7 @@ chrome.runtime.onStartup.addListener(async function() {
     } else { return };
 });
 
+// replace below logic with this
 async function tokenValidator() {
     let tokenIsValid;
     let token = await getStoredAccessToken();
@@ -222,14 +223,7 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
 
         // this doesnt feel like the best way to do this but w/e we ball
         // token should be validated before use by the function using it
-        var tokenValidTime = await getTimeLastFetched('fetchTokenIsValid');
-        var tokenIsValid;
-        console.log("tokenValidTime:", tokenValidTime);
-        if (!(await tokenValidTime)) {
-            tokenIsValid = await fetchTokenIsValid(await getStoredAccessToken());
-
-        } else { tokenIsValid = true };
-        console.log("token valid?", tokenIsValid);
+        let tokenIsValid = await tokenValidator();
         if ( tokenIsValid ) {
             const combinedList = await fetchCombinedList();
             if (combinedList == false) {
