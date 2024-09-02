@@ -5,40 +5,6 @@ const clientID = 'pa669by8xti1oag6giphneaeykt6ln';
 // const extID = chrome.runtime.id;
 // console.log("background script running.");
 
-async function finalFollowList() {
-    let followList = await getStoredFollowList();
-    console.log(followList);
-
-    console.log(Date.now());
-    var followTime = await getTimeLastFetched('fetchFollowList');
-    console.log("follow time:", followTime);
-    // if the array doesn't exist or it's been a minute, fetch an updated follow list
-    if (!Array.isArray(followList) || (followTime === undefined) || ((Date.now() - 60000) > followTime)) {
-        followList = await fetchFollowList();
-    };
-    
-    console.log(followList);
-    if (!followList){
-        return false
-    };
-    followList = sortCaseInsensitive(followList || [], "twitch");
-    // probably dont need to sort favs here anymore?
-    const favorites = sortCaseInsensitive(await getFavorites(), "favorites") || [];
-
-    followList.forEach(obj => {
-        obj.isFavorite = favorites.includes(obj.user_name) ? true : false;
-    });
-
-    followList.sort((a, b) => {
-        if (a.isFavorite === b.isFavorite) {
-            return a.user_name.localeCompare(b.user_name);
-        }
-        return b.isFavorite ? 1 : -1;
-    })
-
-    return followList;
-};
-
 async function fetchFollowList() {
     console.log("Fetching follow list from twitch api.");
     const ID = await getStoredUserID();
@@ -114,6 +80,27 @@ async function fetchUserID() {
     } else {console.error('user ID fetch denied')};
 };
 
+async function finalFollowList() {
+    let followList = await getStoredFollowList();
+    console.log(followList);
+
+    console.log(Date.now());
+    var followTime = await getTimeLastFetched('fetchFollowList');
+    console.log("follow time:", followTime);
+    // if the array doesn't exist or it's been a minute, fetch an updated follow list
+    if (!Array.isArray(followList) || (followTime === undefined) || ((Date.now() - 60000) > followTime)) {
+        followList = await fetchFollowList();
+    };
+    
+    console.log(followList);
+    if (!followList){
+        return false
+    };
+    
+    followList = favListCombiner(followList);
+
+    return followList;
+};
 
 // GET/SET CHROME STORAGE
 
@@ -203,16 +190,6 @@ chrome.runtime.onStartup.addListener(async function() {
     } else { return };
 });
 
-async function tokenValidator() {
-    let tokenIsValid;
-    let token = await getStoredAccessToken();
-    if (token) {
-        tokenIsValid = await fetchTokenIsValid(await token);
-    } else { tokenIsValid = false };
-    console.log("token valid?", tokenIsValid);
-    return tokenIsValid;
-};
-
 chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
 (async function () {
     console.log("message recieved: ", request);
@@ -257,6 +234,25 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
 
 // MISC FUNCTIONS
 
+async function favListCombiner(followList) {
+    let combinedList = sortCaseInsensitive(followList || [], "twitch");
+    const favList = sortCaseInsensitive(await getFavorites(), "favorites") || [];
+
+    combinedList.forEach(obj => {
+        obj.isFavorite = favList.includes(obj.user_name);
+    });
+
+    combinedList.sort((a, b) => {
+        if (a.isFavorite === b.isFavorite) {
+            return a.user_name.localeCompare(b.user_name);
+        }
+        return b.isFavorite ? 1 : -1;
+    });
+
+    return combinedList;
+};
+
+
 async function toggleFavorite(favorite) {
     console.log("toggling favorite");
     const favorites = await getFavorites();
@@ -268,7 +264,17 @@ async function toggleFavorite(favorite) {
     }
     await chrome.storage.local.set({ favorites });
     return await finalFollowList();
-}
+};
+
+async function tokenValidator() {
+    let tokenIsValid;
+    let token = await getStoredAccessToken();
+    if (token) {
+        tokenIsValid = await fetchTokenIsValid(await token);
+    } else { tokenIsValid = false };
+    console.log("token valid?", tokenIsValid);
+    return tokenIsValid;
+};
 
 function sortCaseInsensitive(arr, type) {
     console.log("Sorting: ", arr);
