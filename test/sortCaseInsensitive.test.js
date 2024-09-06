@@ -45,7 +45,7 @@ describe('sortCaseInsensitive', () => {
     });
 
     it('sorts a list of twitch account json objects by user_name', async () => {
-        let l = [{
+        let j = [{
             user_id: "2982838", 
             user_name: "Surefour"
         }, 
@@ -58,9 +58,9 @@ describe('sortCaseInsensitive', () => {
             user_name: "Dantes"
         }];
 
-        l = sut(l, "twitch");
+        j = sut(j, "twitch");
 
-        expect(l).toStrictEqual([
+        expect(j).toStrictEqual([
             {
             user_id: "160504245",
             user_name: "39daph"
@@ -76,7 +76,7 @@ describe('sortCaseInsensitive', () => {
     });
 
     it('Handles an empty user_name', async () => {
-        let l = [{
+        let j = [{
             user_id: "2982838", 
             user_name: "Surefour"
         }, 
@@ -89,9 +89,9 @@ describe('sortCaseInsensitive', () => {
             user_name: "Dantes"
         }];
 
-        l = sut(l, "twitch");
+        j = sut(j, "twitch");
 
-        expect(l).toStrictEqual([
+        expect(j).toStrictEqual([
             {
             user_id: "160504245",
             user_name: ""
