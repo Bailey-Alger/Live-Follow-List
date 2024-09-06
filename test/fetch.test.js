@@ -2,7 +2,7 @@ import chrome from 'sinon-chrome';
 
 beforeAll(() => {
     global.chrome = chrome
-  })
+  });
 
 describe('your test', () => {
     let fetchTokenIsValid;
@@ -10,7 +10,7 @@ describe('your test', () => {
     beforeAll( async () => {
         const module = await import("../src/backgroundTwitch.js");
         fetchTokenIsValid = module.fetchTokenIsValid;
-    })
+    });
 
 
     it('handles a 404', async ()=> {
@@ -22,14 +22,14 @@ describe('your test', () => {
             })
         );
 
+        const result = await fetchTokenIsValid("123");
 
-        const result = await fetchTokenIsValid("123")
         expect(result).toBe(false);
-    })
+    });
 
     afterAll(() => {
         chrome.flush()
-    })
+    });
 })
 
 

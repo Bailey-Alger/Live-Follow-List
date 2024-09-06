@@ -6,16 +6,17 @@ const clientID = 'pa669by8xti1oag6giphneaeykt6ln';
 // console.log("background script running.");
 
 async function fetchFollowList() {
-    console.log("Fetching follow list from twitch api.");
     const ID = await getStoredUserID();
     const authToken = await getStoredAccessToken();
     console.log(ID);
     console.log(authToken);
+
     let tokenIsValid = tokenValidator();
     if (tokenIsValid == false) {
         return false;
     };
     
+    console.log("Fetching follow list from twitch api.");
     // get followlist
     let followList = [];
     let response = await fetch(`https://api.twitch.tv/helix/streams/followed?user_id=${ID}&first=100`, {
@@ -277,7 +278,7 @@ async function tokenValidator() {
     return tokenIsValid;
 };
 
-function sortCaseInsensitive(arr, type) {
+function sortCaseInsensitive(arr, type = "list") {
     console.log("Sorting: ", arr);
     if (type == "twitch") {
         return arr.sort((a, b) => a.user_name.localeCompare(b.user_name, undefined, { sensitivity: 'base' }));
@@ -286,4 +287,4 @@ function sortCaseInsensitive(arr, type) {
     };
 };
 
-export {fetchTokenIsValid};
+export { fetchTokenIsValid, sortCaseInsensitive };
