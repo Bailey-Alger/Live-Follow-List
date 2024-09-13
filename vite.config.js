@@ -10,7 +10,7 @@ export default defineConfig({
         rollupOptions: {
             input: {
                 app: './popup.html',
-                background: 'src/backgroundTwitch.js'
+                background: 'src/background.js'
             },
             output: {
                 entryFileNames: (chunk) => {

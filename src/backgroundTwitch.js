@@ -1,3 +1,5 @@
+// THIS FILE IS NO LONGER BEING USED. USE BACKGROUND.JS AND BACKGROUND_TWITCH DIR.
+
 /* global chrome */
 import { CLIENT_SECRET } from "../config.js";
 
