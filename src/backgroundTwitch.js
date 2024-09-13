@@ -5,9 +5,9 @@ const clientID = 'pa669by8xti1oag6giphneaeykt6ln';
 // const extID = chrome.runtime.id;
 // console.log("background script running.");
 
-async function fetchFollowList() {
-    const ID = await getStoredUserID();
-    const authToken = await getStoredAccessToken();
+async function fetchFollowList(ID, authToken) {
+    // const ID = await getStoredUserID();
+    // const authToken = await getStoredAccessToken();
     console.log(ID);
     console.log(authToken);
 
@@ -81,25 +81,25 @@ async function fetchUserID() {
     } else {console.error('user ID fetch denied')};
 };
 
-async function finalFollowList() {
+async function followListAssembler() {
     let followList = await getStoredFollowList();
-    // console.log(followList);
 
-    // console.log(Date.now());
     var followTime = await getTimeLastFetched('fetchFollowList');
     console.log("follow time:", followTime);
     // if the array doesn't exist or it's been a minute, fetch an updated follow list
     if (!Array.isArray(followList) || (followTime === undefined) || ((Date.now() - 60000) > followTime)) {
-        followList = await fetchFollowList();
+        const ID = await getStoredUserID();
+        const authToken = await getStoredAccessToken();
+        followList = await fetchFollowList(ID, authToken);
+        // followList = await fetchFollowList();
     };
     
-    // console.log(followList);
     if (!followList){
         return false;
     };
 
     const favList = await getFavorites();
-    followList = await favListCombiner(followList, await favList);
+    followList = await favListCombiner(await followList, await favList);
 
     return followList;
 };
@@ -196,7 +196,7 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
 (async function () {
     console.log("message recieved: ", request);
     if (request === "fetchTwitchData") {
-        const followList = await finalFollowList();
+        const followList = await followListAssembler();
         if (followList) {
             sendResponse({
                 success: true,
@@ -265,7 +265,7 @@ async function toggleFavorite(favorite) {
         favorites.push(favorite);
     }
     await chrome.storage.local.set({ favorites });
-    return await finalFollowList();
+    return await followListAssembler();
 };
 
 async function tokenValidator() {
