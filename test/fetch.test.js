@@ -4,7 +4,7 @@ beforeAll(() => {
     global.chrome = chrome
   });
 
-describe('your test', () => {
+describe('fetchTokenIsValid', () => {
     let fetchTokenIsValid;
 
     beforeAll( async () => {

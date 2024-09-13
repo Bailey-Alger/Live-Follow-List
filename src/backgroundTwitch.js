@@ -237,8 +237,8 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
 // MISC FUNCTIONS
 
 async function favListCombiner(followList, favList) {
-    followList = sortCaseInsensitive(followList || [], "twitch");
-    favList = sortCaseInsensitive(favList, "favorites") || [];
+    // followList = sortCaseInsensitive(followList || [], "twitch");
+    // favList = sortCaseInsensitive(favList, "favorites") || [];
 
     followList.forEach(obj => {
         obj.isFavorite = favList.includes(obj.user_name);

@@ -12,7 +12,7 @@ describe('sortCaseInsensitive', () => {
         sut = module.sortCaseInsensitive;
     });
 
-    it('sorts a list', async ()=> {
+    it('sorts a list in ascending order', async ()=> {
         let l = ["azz", "zZz", "aaa", "Aza", "aaz", "zza", "zaa"];
 
         l = sut(l, "list");
