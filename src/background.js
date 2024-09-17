@@ -32,8 +32,18 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
     } else if (await request.type === "toggleFavorite") {
         const favorite = request.favorite;
         console.log(favorite);
-        const combinedList = await toggleFavorite(favorite);
-        sendResponse({success: true, combinedList});
+        toggleFavorite(favorite);
+        const followList = await followListAssembler();
+        if (followList) {
+            sendResponse({
+                success: true,
+                followList: followList
+            });
+        } else {
+            sendResponse({
+                success: false
+            });
+        };
 
     } else if (await request.type === "OAuthURL") {
         var url = new URL(request.url.slice(0,-1));
@@ -44,10 +54,19 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
             console.log(accessToken);
             chrome.storage.local.set({ accessToken });
             storage.setStoredUserID(await twitchAPI.fetchUserID());
+            sendResponse({
+                success: true
+            });
         } else if (!url.hash && url.search) {
             console.log(url.search);
+            sendResponse({
+                success: false
+            });
         } else {
             console.log('unknown error');
+            sendResponse({
+                success: false
+            });
         };
     };
 })();

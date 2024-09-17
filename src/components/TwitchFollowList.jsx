@@ -16,16 +16,21 @@ async function twitchDataFetcher() {
 }
 
 async function toggleFav(item) {
-    chrome.runtime.sendMessage(
-        { type: "toggleFavorite", favorite: item },
-        function (response) {
-            if (response && response.success) {
-                console.log("favorite toggled");
-            } else {
-                console.error("Error toggling favorite");
+    return new Promise((resolve, reject) => {
+        chrome.runtime.sendMessage(
+            { type: "toggleFavorite", favorite: item },
+            function (response) {
+                if (response && response.followList) {
+                    console.log("favorite toggled");
+                    console.log(response.followList);
+                    resolve(response.followList);
+                } else {
+                    console.log(response);
+                    reject(new Error("Error toggling favorite"));
+                }
             }
-        }
-    );
+        );
+    });
 }
 
 function TwitchFollowList() {
@@ -33,9 +38,12 @@ function TwitchFollowList() {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
 
-    async function fetchData() {
+    async function fetchRouter(item) {
         try {
-            const data = await twitchDataFetcher();
+            const data =
+                item == undefined
+                    ? await twitchDataFetcher()
+                    : await toggleFav(item);
             console.log("37", data);
             if (data == undefined || false) {
                 throw new Error("failed to fetch data from twitchDataFetcher");
@@ -50,7 +58,7 @@ function TwitchFollowList() {
     }
 
     useEffect(() => {
-        fetchData();
+        fetchRouter();
     }, []);
     if (loading) {
         return <div>Loading...</div>;
@@ -60,7 +68,6 @@ function TwitchFollowList() {
         return <div>Error: {error.message}</div>;
     }
 
-    // togglefav might need the item.user_name vvv
     return (
         <div>
             <ol>
@@ -69,8 +76,7 @@ function TwitchFollowList() {
                         {item.user_name}{" "}
                         <button
                             onClick={() => {
-                                toggleFav(item.user_name);
-                                fetchData();
+                                fetchRouter(item.user_name);
                             }}
                         >
                             {item.isFavorite ? "-" : "+"}

@@ -7,7 +7,7 @@ export async function followListAssembler() {
     var followTime = await storage.getTimeLastFetched('fetchFollowList');
     console.log("follow time:", followTime);
     // if the array doesn't exist or it's been a minute, fetch an updated follow list
-    if (!Array.isArray(followList) || (followTime === undefined) || ((Date.now() - 60000) > followTime)) {
+    if (!Array.isArray(await followList) || (await followTime === undefined) || ((Date.now() - 60000) > await followTime)) {
         const ID = await storage.getStoredUserID();
         const authToken = await storage.getStoredAccessToken();
         followList = await twitchAPI.fetchFollowList(ID, authToken);
@@ -53,7 +53,7 @@ export async function toggleFavorite(favorite) {
         favorites.push(favorite);
     }
     await chrome.storage.local.set({ favorites });
-    return await followListAssembler();
+    return;
 };
 
 // function sortCaseInsensitive(arr, type = "list") {
