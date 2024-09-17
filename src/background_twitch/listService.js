@@ -24,10 +24,8 @@ export async function followListAssembler() {
     return followList;
 };
 
-async function favListCombiner(followList, favList) {
-    // followList = sortCaseInsensitive(followList || [], "twitch");
-    // favList = sortCaseInsensitive(favList, "favorites") || [];
-
+export async function favListCombiner(followList, favList) {
+    
     followList.forEach(obj => {
         obj.isFavorite = favList.includes(obj.user_name);
     });

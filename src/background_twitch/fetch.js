@@ -10,7 +10,7 @@ export async function fetchFollowList(ID, authToken) {
     console.log(authToken);
 
     let tokenIsValid = await tokenValidator();
-    if (await tokenIsValid == false) {
+    if (tokenIsValid == false) {
         return false;
     };
     
