@@ -8,11 +8,6 @@ export async function fetchFollowList(ID, authToken) {
     // const authToken = await getStoredAccessToken();
     console.log(ID);
     console.log(authToken);
-
-    let tokenIsValid = await tokenValidator();
-    if (tokenIsValid == false) {
-        return false;
-    };
     
     console.log("Fetching follow list from twitch api.");
     // get followlist
@@ -80,12 +75,12 @@ export async function fetchUserID() {
 };
 
 
-async function tokenValidator() {
-    let tokenIsValid;
-    let token = await getStoredAccessToken();
-    if (token) {
-        tokenIsValid = await fetchTokenIsValid(await token);
-    } else { tokenIsValid = false };
-    console.log("token valid?", tokenIsValid);
-    return tokenIsValid;
-};
+// async function tokenValidator() {
+//     let tokenIsValid;
+//     let token = await getStoredAccessToken();
+//     if (token) {
+//         tokenIsValid = await fetchTokenIsValid(await token);
+//     } else { tokenIsValid = false };
+//     console.log("token valid?", tokenIsValid);
+//     return tokenIsValid;
+// };

@@ -6,10 +6,15 @@ export async function followListAssembler() {
 
     var followTime = await storage.getTimeLastFetched('fetchFollowList');
     console.log("follow time:", followTime);
+    console.log(followList);
     // if the array doesn't exist or it's been a minute, fetch an updated follow list
     if (!Array.isArray(await followList) || (await followTime === undefined) || ((Date.now() - 60000) > await followTime)) {
         const ID = await storage.getStoredUserID();
         const authToken = await storage.getStoredAccessToken();
+        let tokenIsValid = await twitchAPI.fetchTokenIsValid(authToken);
+        if (tokenIsValid == false) {
+            return false;
+        };
         followList = await twitchAPI.fetchFollowList(ID, authToken);
         // followList = await fetchFollowList();
     };
