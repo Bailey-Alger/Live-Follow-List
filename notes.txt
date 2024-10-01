@@ -10,7 +10,7 @@ change all_urls to the only the URLs the extension will run.
 
 http-server starts a local server at 8080
 
-TODO: CLONE REACT STUDY AND USE IT TO FIGURE OUT THE ISSUE WITH THIS
+TODO: 
 
 React structure:
     popup.jsx --- App.jsx  --- Twitch UI Component --- Other Components
@@ -26,6 +26,3 @@ Youtube
     snippet -> resource id -> channel id
     
 
-fix ReferenceError: chrome is not defined
-
-need follow list to be fetched when first authorized

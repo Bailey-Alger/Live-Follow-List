@@ -1,3 +1,11 @@
-export function Settings() {
-    return <h1>Youtube</h1>;
+import YTLogin from "./YTLogin";
+
+function YouTube() {
+    return (
+        <>
+            <YTLogin />
+        </>
+    );
 }
+
+export default YouTube;

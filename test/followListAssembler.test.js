@@ -1,6 +1,6 @@
 import { followListAssembler } from "../src/background_twitch/listService";
 import chrome from "sinon-chrome";
-
+// TODO: improve this mess
 
 describe('followListAssembler is a controller function that calls the fetch and chrome get functions', () => {
     let sut = followListAssembler;
