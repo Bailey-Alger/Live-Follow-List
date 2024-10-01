@@ -2,6 +2,9 @@ import { useState } from "react";
 
 const extID = chrome.runtime.id;
 // write function to send oauthurl to background script
+function sendYouTubeOAuthURL(url) {
+    chrome.runtime.sendMessage({ type: "YTOAuthURL", url });
+}
 
 function YTLogin() {
     const [loginClicked, setLoginClicked] = useState(false);
@@ -16,7 +19,7 @@ function YTLogin() {
                         },
                         function (redirect_url) {
                             console.log(redirect_url);
-                            // send oauth url here
+                            sendYouTubeOAuthURL(redirect_url);
                         }
                     );
                     console.log("url sent to background script");

@@ -26,3 +26,6 @@ Youtube
     snippet -> resource id -> channel id
     
 
+YouTube OAuth URL example: https://mfbjnbjkagdjedgknpmmhdgkoiegmnkc.chromiumapp.org/#access_token=ya29.a0AcM612xf0y1hocjfhIt18y7h6n-Fx5QQ8ZKpqZI9bdxjqOrTJVVawyyOeh-TNyHwGHcsQcM58zOxcUjZaTav0mm-RAun2qqiV77wBZkb4SKgXrFdklrXMBf08BjggtJsO6X-BZjMlSeeOmHIkMmiBcUmbNjJL-b6JQaCgYKAR8SARMSFQHGX2MiQSbMLJeMl61cw63VDpshhg0169&token_type=Bearer&expires_in=3598&scope=https://www.googleapis.com/auth/youtube.readonly
+
+Twitch example: https://mfbjnbjkagdjedgknpmmhdgkoiegmnkc.chromiumapp.org/#access_token=hrhduebsn8vfr927ijvx5tn69ilkc3&scope=user%3Aread%3Afollows&token_type=bearer

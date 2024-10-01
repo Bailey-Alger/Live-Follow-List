@@ -46,7 +46,7 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
         };
 
     } else if (await request.type === "OAuthURL") {
-        var url = new URL(request.url.slice(0,-1));
+        var url = new URL(request.url);
         console.log(url);
         console.log(url.hash);
         if (url.hash && !url.search) {
@@ -64,6 +64,24 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
             });
         } else {
             console.log('unknown error');
+            sendResponse({
+                success: false
+            });
+        };
+    } else if (await request.type === "YTOAuthURL") {
+        var url = new URL(request.url);
+        console.log(url);
+        console.log(url.hash);
+        if (url.hash && !url.search) {
+            const ytAccessToken = url.hash.slice(14, url.hash.indexOf('&'));
+            console.log(ytAccessToken);
+            chrome.storage.local.set({ ytAccessToken });
+            // maybe some more
+            sendResponse({
+                success: true
+            });
+        } else if (!url.hash && url.search) {
+            console.log(url.search);
             sendResponse({
                 success: false
             });
