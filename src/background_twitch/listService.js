@@ -10,21 +10,25 @@ export async function followListAssembler() {
     // if the array doesn't exist or it's been a minute, fetch an updated follow list
     if (!Array.isArray(await followList) || (await followTime === undefined) || ((Date.now() - 60000) > await followTime)) {
         const ID = await storage.getStoredUserID();
-        const authToken = await storage.getStoredAccessToken();
+        const authToken = await storage.getStoredAccessToken("twitchToken");
         let tokenIsValid = await twitchAPI.fetchTokenIsValid(authToken);
         if (tokenIsValid == false) {
+            console.log(authToken);
+            console.log("token invalid");
             return false;
         };
         followList = await twitchAPI.fetchFollowList(ID, authToken);
-        // followList = await fetchFollowList();
+        console.log(followList, "after fresh fetch");
     };
     
     if (!followList){
+        // console.log(await followList, "twitch api error");
         return false;
     };
 
     const favList = await storage.getFavorites();
     followList = await favListCombiner(await followList, await favList);
+    // console.log(await followList, "after favlist");
 
     return followList;
 };

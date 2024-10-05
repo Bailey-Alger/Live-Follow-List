@@ -22,7 +22,7 @@ export async function fetchFollowList(ID, authToken) {
         let data = await response.json();
         console.log(data);
         let promises = data.data.map(async (item) => {
-            console.log(item);
+            // console.log(item);
             followList.push(item);
         });
         await Promise.all(promises);
@@ -59,13 +59,14 @@ export async function fetchTokenIsValid(token) {
     }
 };
 
-export async function fetchUserID() {
+export async function fetchUserID(token) {
     let response = await fetch("https://api.twitch.tv/helix/users", {
         headers: {
-            "Authorization": `Bearer ${await getStoredAccessToken()}`,
+            "Authorization": `Bearer ${token}`,
             "Client-ID": `${clientID}`
         }
     });
+    console.log(response);
     if (response.ok) {
         let data = await response.json();
         console.log(data);

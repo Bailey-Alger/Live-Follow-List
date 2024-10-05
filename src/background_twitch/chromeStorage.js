@@ -1,3 +1,5 @@
+import { fetchTokenIsValid } from "./fetch";
+
 export async function setTimeLastFetched(functName) {
     return new Promise((resolve) => {
         chrome.storage.local.set({ [`${functName}`]: Date.now() }, () => {
@@ -17,10 +19,20 @@ export async function getTimeLastFetched(functName) {
     })
 }
 
-export async function getStoredAccessToken() {
+export async function setStoredAccessToken(tokenName, token) {
+    return new Promise ((resolve => {
+        console.log("token name", tokenName, "token:" , token);
+        chrome.storage.local.set({ [`${tokenName}`]: token }, () => {
+            resolve();
+        })
+    }))
+}
+
+export async function getStoredAccessToken(tokenName) {
     return new Promise((resolve) => {
-        chrome.storage.local.get(["accessToken"], (result) => {
-            const accessToken = result.accessToken;
+        chrome.storage.local.get([`${tokenName}`], (result) => {
+            console.log("token set: ", result);
+            const accessToken = result[`${tokenName}`];
             resolve(accessToken);
         })
     })

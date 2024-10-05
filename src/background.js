@@ -1,6 +1,7 @@
 import * as storage from './background_twitch/chromeStorage.js';
 import * as twitchAPI from './background_twitch/fetch.js';
 import { followListAssembler, toggleFavorite} from './background_twitch/listService.js';
+import { ytListAssembler } from './background_youtube/ytListService.js';
 
 // if token is invalid what will break?
 // Removes invalid token timer on startup
@@ -18,6 +19,7 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
     console.log("message recieved: ", request);
     if (request === "fetchTwitchData") {
         const followList = await followListAssembler();
+        console.log(followList);
         if (followList) {
             sendResponse({
                 success: true,
@@ -50,10 +52,10 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
         console.log(url);
         console.log(url.hash);
         if (url.hash && !url.search) {
-            const accessToken = url.hash.slice(14, url.hash.indexOf('&'));
-            console.log(accessToken);
-            chrome.storage.local.set({ accessToken });
-            storage.setStoredUserID(await twitchAPI.fetchUserID());
+            const twitchToken = url.hash.slice(14, url.hash.indexOf('&'));
+            // console.log(twitchToken);
+            storage.setStoredAccessToken("twitchToken", twitchToken);
+            storage.setStoredUserID(await twitchAPI.fetchUserID(twitchToken));
             sendResponse({
                 success: true
             });
@@ -73,15 +75,28 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
         console.log(url);
         console.log(url.hash);
         if (url.hash && !url.search) {
-            const ytAccessToken = url.hash.slice(14, url.hash.indexOf('&'));
-            console.log(ytAccessToken);
-            chrome.storage.local.set({ ytAccessToken });
+            const ytToken = url.hash.slice(14, url.hash.indexOf('&'));
+            console.log(ytToken);
+            storage.setStoredAccessToken("ytToken", ytToken);;
             // maybe some more
             sendResponse({
                 success: true
             });
         } else if (!url.hash && url.search) {
             console.log(url.search);
+            sendResponse({
+                success: false
+            });
+        };
+    } else if (request === "fetchYTData") {
+        ytListAssembler();
+        const followList = ["foo", "bar"];   // await followListAssembler(); // change to YT version
+        if (followList) {
+            sendResponse({
+                success: true,
+                followList: followList
+            });
+        } else {
             sendResponse({
                 success: false
             });
